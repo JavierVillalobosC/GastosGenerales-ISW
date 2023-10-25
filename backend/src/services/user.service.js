@@ -2,6 +2,7 @@
 // Importa el modelo de datos 'User'
 const User = require("../models/user.model.js");
 const Role = require("../models/role.model.js");
+const State = require("../models/state.model.js");
 const { handleError } = require("../utils/errorHandler");
 
 /**
@@ -29,7 +30,7 @@ async function getUsers() {
  */
 async function createUser(user) {
   try {
-    const { username, email, password, roles } = user;
+    const { username, email, password, roles, state } = user;
 
     const userFound = await User.findOne({ email: user.email });
     if (userFound) return [null, "El usuario ya existe"];
@@ -38,11 +39,16 @@ async function createUser(user) {
     if (rolesFound.length === 0) return [null, "El rol no existe"];
     const myRole = rolesFound.map((role) => role._id);
 
+    const stateFound = await State.find({ name: { $in: state } });
+    if (stateFound.length === 0) return [null, "El estado no existe"];
+    const myState = stateFound.map((state) => state._id);
+
     const newUser = new User({
       username,
       email,
       password: await User.encryptPassword(password),
       roles: myRole,
+      state: myState,
     });
     await newUser.save();
 
@@ -83,7 +89,7 @@ async function updateUser(id, user) {
     const userFound = await User.findById(id);
     if (!userFound) return [null, "El usuario no existe"];
 
-    const { username, email, password, newPassword, roles } = user;
+    const { username, email, password, newPassword, roles, state } = user;
 
     const matchPassword = await User.comparePassword(
       password,
@@ -99,6 +105,10 @@ async function updateUser(id, user) {
 
     const myRole = rolesFound.map((role) => role._id);
 
+    const stateFound = await State.find({ name: { $in: state } });
+    if (stateFound.length === 0) return [null, "El estado no existe"];
+    const myState = stateFound.map((state) => state._id);
+    
     const userUpdated = await User.findByIdAndUpdate(
       id,
       {
@@ -106,6 +116,7 @@ async function updateUser(id, user) {
         email,
         password: await User.encryptPassword(newPassword || password),
         roles: myRole,
+        state: myState,
       },
       { new: true },
     );
