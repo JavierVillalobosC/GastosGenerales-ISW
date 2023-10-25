@@ -14,6 +14,11 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    rut: {
+      type: String,
+      required: true,
+      unique: true,
+    },
     email: {
       type: String,
       required: true,
@@ -25,7 +30,19 @@ const userSchema = new mongoose.Schema(
         ref: "Role",
       },
     ],
+    debt: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
+    state: [
+      {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "State",
+      }
+    ]
   },
+
   {
     versionKey: false,
   },
