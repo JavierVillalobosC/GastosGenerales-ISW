@@ -20,7 +20,7 @@ const paySchema = new mongoose.Schema(
     },
     date: {
         type: Date,
-        required: true,
+        required: true
     },
     total_amount: {
         type: Number,
@@ -46,7 +46,7 @@ const paySchema = new mongoose.Schema(
     ],
     paydate: {
         type: Date,
-        required: true,
+        required: true
     },
 },
 {
