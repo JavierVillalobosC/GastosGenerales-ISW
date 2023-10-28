@@ -2,6 +2,7 @@
 
 const mongoose = require("mongoose")
 
+
 const paySchema = new mongoose.Schema(
 {
     id: {
@@ -22,6 +23,11 @@ const paySchema = new mongoose.Schema(
         type: Date,
         required: true
     },
+    total_amount: {
+        type: Number,
+        required: true,
+        min: 0
+    },
     amount: {
         type: Number,
         required: true,
@@ -30,8 +36,21 @@ const paySchema = new mongoose.Schema(
     status: {
         type: String,
         required: true
+    },
+    type: [
+        {
+
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Paytype"
+
     }
-}, {
+    ],
+    paydate: {
+        type: Date,
+        required: true
+    },
+},
+{
     versionKey: false,
 })
 
