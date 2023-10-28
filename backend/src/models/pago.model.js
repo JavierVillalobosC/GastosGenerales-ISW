@@ -2,7 +2,6 @@
 
 const mongoose = require("mongoose")
 
-
 const paySchema = new mongoose.Schema(
 {
     id: {
@@ -22,7 +21,6 @@ const paySchema = new mongoose.Schema(
     date: {
         type: Date,
         required: true,
-        match: /^\d{2}-\d{2}-\d{4}$/
     },
     total_amount: {
         type: Number,
@@ -49,7 +47,6 @@ const paySchema = new mongoose.Schema(
     paydate: {
         type: Date,
         required: true,
-        match: /^\d{2}-\d{2}-\d{4}$/
     },
 },
 {
