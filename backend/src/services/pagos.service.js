@@ -57,7 +57,7 @@ async function createPago(pago) {
     });
     if (amount / total_amount >= 0.6) {
         newPay.paydate = new Date(newPay.paydate.getTime() + (14 * 24 * 60 * 60 * 1000));
-     }
+    }
     await newPay.save();
     return [newPay, null];
     } catch (error) {
