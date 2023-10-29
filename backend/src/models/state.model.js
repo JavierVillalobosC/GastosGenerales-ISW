@@ -8,7 +8,7 @@ const stateSchema = new mongoose.Schema(
         name: {
             type: String,
             enum: STATES,
-            required: true,
+            required: false,
         },
     },
     {

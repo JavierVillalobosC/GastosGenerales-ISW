@@ -34,29 +34,23 @@ async function createPago(pago) {
 
     const { id, user, idService, date, total_amount,  amount, status, type, paydate } = pago;
     
-    const payfound = await Pay.find({pay: { $in: type} });
-    if (payfound.length === 0) return [null, "El tipo de pago no existe"];
-    
     const pagoFound = await Pay.findOne({ id: pago.id });
     if (pagoFound) return [null, "El pago ya existe"];
 
-    const userFound = await User.findOne({ rut: User.rut });
+    const userFound = await User.findById(user);
     if (!userFound) return [null, "El usuario no existe"];
-    const myUser = userFound.rut;
     
-    const typeFound = await Pay.find({ name: { $in: type } });
-    if (typeFound.length === 0) return [null, "El tipo de pago no existe"];
-    const myType = typeFound.map((type) => type._id);
+    
 
     const newPay = new Pay({
         id,
-        user: myUser,
+        user,
         idService,
         date,
         total_amount,
         amount,
         status,
-        type: myType,
+        type,
         paydate
     });
     if (amount / total_amount >= 0.6) {

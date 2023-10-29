@@ -32,7 +32,7 @@ const userSchema = new mongoose.Schema(
     ],
     debt: {
       type: Number,
-      required: true,
+      required: false,
       min: 0,
     },
     state: [
