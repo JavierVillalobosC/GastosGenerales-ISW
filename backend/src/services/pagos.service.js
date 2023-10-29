@@ -32,7 +32,7 @@ async function getPagos() {
 async function createPago(pago) {
     try{
 
-    const { id, user, idService, date,total_amount,  amount, status, type, paydate } = pago;
+    const { id, user, idService, date, total_amount,  amount, status, type, paydate } = pago;
     
     const payfound = await Pay.find({pay: { $in: type} });
     if (payfound.length === 0) return [null, "El tipo de pago no existe"];
