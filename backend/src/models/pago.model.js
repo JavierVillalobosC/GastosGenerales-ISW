@@ -22,6 +22,11 @@ const paySchema = new mongoose.Schema(
         type: Date,
         required: true
     },
+    total_amount: {
+        type: Number,
+        required: true,
+        min: 0
+    },
     amount: {
         type: Number,
         required: true,
@@ -29,6 +34,14 @@ const paySchema = new mongoose.Schema(
     },
     status: {
         type: String,
+        required: true
+    },
+    type: {
+        type: String,
+        required: true
+    },
+    paydate: {
+        type: Date,
         required: true
     }
 }, {
