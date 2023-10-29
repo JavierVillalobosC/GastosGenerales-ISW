@@ -10,6 +10,9 @@ const morgan = require("morgan");
 const cookieParser = require("cookie-parser");
 /** El enrutador principal */
 const indexRoutes = require("./routes/index.routes.js");
+
+const pagoRoutes = require("./routes/pagos.routes.js");
+
 // Importa el archivo 'configDB.js' para crear la conexión a la base de datos
 const { setupDB } = require("./config/configDB.js");
 // Importa el handler de errores
@@ -36,6 +39,7 @@ async function setupServer() {
     // Agrega el enrutador principal al servidor
     server.use("/api", indexRoutes);
 
+    server.use("/api", pagoRoutes);
     // Inicia el servidor en el puerto especificado
     server.listen(PORT, () => {
       console.log(`=> Servidor corriendo en ${HOST}:${PORT}/api`);

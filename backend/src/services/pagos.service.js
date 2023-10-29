@@ -32,7 +32,10 @@ async function getPagos() {
 async function createPago(pago) {
     try{
 
-    const { id, user, idService, date, amount, status } = pago;
+    const { id, user, idService, date, total_amount,  amount, status, type, paydate } = pago;
+    
+    const payfound = await Pay.find({pay: { $in: type} });
+    if (payfound.length === 0) return [null, "El tipo de pago no existe"];
     
     const pagoFound = await Pay.findOne({ id: pago.id });
     if (pagoFound) return [null, "El pago ya existe"];
@@ -40,14 +43,21 @@ async function createPago(pago) {
     const userFound = await User.findOne({ rut: User.rut });
     if (!userFound) return [null, "El usuario no existe"];
     const myUser = userFound.rut;
+
     const newPay = new Pay({
         id,
         user: myUser,
         idService,
         date,
+        total_amount,
         amount,
-        status
+        status,
+        type,
+        paydate
     });
+    if (amount / total_amount >= 0.6) {
+        newPay.paydate = new Date(newPay.paydate.getTime() + (14 * 24 * 60 * 60 * 1000));
+    }
     await newPay.save();
     return [newPay, null];
     } catch (error) {
@@ -85,13 +95,16 @@ async function updatePago(id, pago) {
         const pagoFound = await Pay.findById(id);
         if (!pagoFound) return [null, "El pago no existe"];
 
-        const { idService, date, amount, status } = pago;
+        const { idService, date, total_amount, amount, status, type, paydate } = pago;
         const newPago = new Pay({
             id,
             idService,
             date,
+            total_amount,
             amount,
-            status
+            status,
+            type,
+            paydate
         });
         await newPago.save();
 

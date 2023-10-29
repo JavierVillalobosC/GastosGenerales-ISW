@@ -81,7 +81,7 @@ async function updatePago(req, res) {
     const { params, body } = req;
     const [pago, errorPago] = await PayService.updatePago(params.id, body);
     if (errorPago) return respondError(req, res, 404, errorPago);
-
+    
     respondSuccess(req, res, 200, pago);
   } catch (error) {
     handleError(error, "pagos.controller -> updatePago");
