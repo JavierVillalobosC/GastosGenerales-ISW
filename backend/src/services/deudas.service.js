@@ -1,6 +1,6 @@
 "use strict"
 
-const Pay = require("../models/deuda.model.js");
+const Debt = require("../models/deuda.model.js");
 const User = require("../models/user.model.js");
 const { handleError } = require("../utils/errorHandler");
 
@@ -11,7 +11,7 @@ const { handleError } = require("../utils/errorHandler");
 
 async function getDeudas() {
     try {
-        const pagos = await Debt.find()
+        const deudas = await Debt.find()
         .populate("user")
         .exec();
 

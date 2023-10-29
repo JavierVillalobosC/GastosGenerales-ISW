@@ -20,7 +20,8 @@ const debtSchema = new mongoose.Schema(
         },
         date: {
             type: Date,
-            required: true
+            required: true,
+            match: /^\d{2}-\d{2}-\d{4}$/
         },
         amount: {
             type: Number,
