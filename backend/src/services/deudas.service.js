@@ -1,6 +1,6 @@
 "use strict"
 
-const Pay = require("../models/deuda.model.js");
+const Debt = require("../models/deuda.model.js");
 const User = require("../models/user.model.js");
 const { handleError } = require("../utils/errorHandler");
 
@@ -11,7 +11,7 @@ const { handleError } = require("../utils/errorHandler");
 
 async function getDeudas() {
     try {
-        const pagos = await Debt.find()
+        const deudas = await Debt.find()
         .populate("user")
         .exec();
 
@@ -25,7 +25,7 @@ async function getDeudas() {
 
 /**
  * 
- * @param {Object} pago Objeto de deuda
+ * @param {Object} deuda Objeto de deuda
  * @returns {Promise} Promesa con el objeto de deuda creado
  */
 
@@ -66,7 +66,7 @@ async function createDeuda(deuda) {
 
 async function getDeudaById(id) {
     try {
-        const pago = await Debt.findById({ _id: id })
+        const deuda = await Debt.findById({ _id: id })
         .populate("user")
         .exec();
         if (!deuda) return [null, "La deuda no existe"];
@@ -89,7 +89,7 @@ async function updateDeuda(id, deuda) {
         if (!deudaFound) return [null, "La deuda no existe"];
 
         const { idService, date, amount } = deuda;
-        const newPago = new Pay({
+        const newDeuda = new Pay({
             id,
             idService,
             date,
