@@ -37,10 +37,13 @@ const paySchema = new mongoose.Schema(
         type: String,
         required: true
     },
-    type: {
-        type: String,
-        required: true
-    },
+    type: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Paytype",
+            required: true
+        }
+    ],
     paydate: {
         type: Date,
         required: true,
