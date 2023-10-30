@@ -12,6 +12,7 @@ const pagoRoutes = require("./pagos.routes.js");
 
 const deudaRoutes = require("./deudas.routes.js");
 
+const mailerRoutes = require("./mailer.routes.js");
 /** Middleware de autenticación */
 const authenticationMiddleware = require("../middlewares/authentication.middleware.js");
 
@@ -26,5 +27,7 @@ router.use("/auth", authRoutes);
 router.use("/pagos", pagoRoutes);
 
 router.use("/deudas", deudaRoutes);
+
+router.use("/sendMail", mailerRoutes);
 // Exporta el enrutador
 module.exports = router;
