@@ -15,6 +15,10 @@ const deudaRoutes = require("./deudas.routes.js");
 const interesRoutes = require("./interes.routes.js");
 
 const mailerRoutes = require("./mailer.routes.js");
+
+const fileRoutes = require("./file.routes.js");
+
+const appealRoutes = require("./appeal.routes.js");
 /** Middleware de autenticación */
 const authenticationMiddleware = require("../middlewares/authentication.middleware.js");
 
@@ -33,5 +37,9 @@ router.use("/deudas", deudaRoutes);
 router.use("/interes", interesRoutes);
 
 router.use("/sendMail", mailerRoutes);
+
+router.use("/file", fileRoutes);
+
+router.use("/appeals", appealRoutes);
 // Exporta el enrutador
 module.exports = router;
