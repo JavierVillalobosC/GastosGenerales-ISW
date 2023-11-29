@@ -1,8 +1,8 @@
 "use strict";
 
 const Joi = require("joi");
-const ROLES = require("../constants/roles.constants");
-
+const ROLES = require("../constants/roles.constants.js");
+const STATES = require("../constants/states.constants.js");
 /**
  * Esquema de validación para el cuerpo de la solicitud de usuario.
  * @constant {Object}
@@ -38,6 +38,21 @@ const userBodySchema = Joi.object({
     "string.empty": "La contraseña no puede estar vacía.",
     "string.base": "La contraseña debe ser de tipo string.",
     "string.min": "La contraseña debe tener al menos 5 caracteres.",
+  }),
+  rut: Joi.string().required().messages({
+    "string.empty": "El rut no puede estar vacío.",
+    "any.required": "El rut es obligatorio.",
+    "string.base": "El rut debe ser de tipo string.",
+  }),
+  state: Joi.array().items(Joi.string().valid(...STATES)).required().messages({
+    "array.base": "El estado debe ser de tipo array.",
+    "any.required": "El estado es obligatorio.",
+    "string.base": "El estado debe ser de tipo string.",
+    "any.only": "El estado proporcionado no es válido.",
+  }),
+  debt: Joi.number().required().messages({
+    "number.base": "La deuda debe ser de tipo number.",
+    "any.required": "La deuda es obligatoria.",
   }),
 }).messages({
   "object.unknown": "No se permiten propiedades adicionales.",

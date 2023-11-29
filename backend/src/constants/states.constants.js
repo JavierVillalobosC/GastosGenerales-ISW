@@ -1,5 +1,5 @@
 
 
-const states = ["al dia","deudor"];
+const STATES= ["al dia", "deudor"];
 
-module.exports = states;
+module.exports = STATES;
