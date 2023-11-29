@@ -60,7 +60,7 @@ async function createDeuda(req, res) {
 async function getDeudaById(req, res) {
     try {
       const { params } = req;
-      const [deuda, errorDeuda] = await DebtService.getDebtById(params.id);
+      const [deuda, errorDeuda] = await DebtService.getDeudaById(params.id);
       if (errorDeuda) return respondError(req, res, 404, errorDeuda);
   
       respondSuccess(req, res, 200, deuda);
@@ -80,7 +80,7 @@ async function getDeudaById(req, res) {
 async function updateDeuda(req, res) {
     try {
       const { params, body } = req;
-      const [deuda, errorDeuda] = await DebtService.updatePago(params.id, body);
+      const [deuda, errorDeuda] = await DebtService.updateDeuda(params.id, body);
       if (errorDeuda) return respondError(req, res, 404, errorDeuda);
       
       respondSuccess(req, res, 200, deuda);

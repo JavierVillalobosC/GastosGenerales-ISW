@@ -32,7 +32,7 @@ async function getDeudas() {
 async function createDeuda(deuda) {
     try{
 
-    const { id, user, idService, date, amount } = deuda;
+    const { id, user, idService, initialdate, finaldate, amount } = deuda;
     
     const deudaFound = await Debt.findOne({ id: deuda.id });
     if (deudaFound) return [null, "La deuda ya existe"];
@@ -40,16 +40,20 @@ async function createDeuda(deuda) {
     const userFound = await User.findById(user);
     if (!userFound) return [null, "El usuario no existe"];
     
-    
+    // Actualizar la deuda del usuario
+    userFound.debt += amount;
+    await userFound.save();
 
     const newDebt = new Debt({
         id,
         user,
         idService,
-        date,
+        initialdate,
+        finaldate,
         amount,
     });
     await newDebt.save();
+
 
 
     return [newDebt, null];
@@ -71,7 +75,7 @@ async function getDeudaById(id) {
         .exec();
         if (!deuda) return [null, "La deuda no existe"];
 
-        return [pago, null];
+        return [deuda, null];
     } catch (error) {
         handleError(error, "deudas.service -> getDeudaById");
     }
@@ -88,11 +92,13 @@ async function updateDeuda(id, deuda) {
         const deudaFound = await Debt.findById(id);
         if (!deudaFound) return [null, "La deuda no existe"];
 
-        const { idService, date, amount } = deuda;
-        const newDeuda = new Pay({
+        const { user, idService, initialdate, finaldate, amount } = deuda;
+        const newDeuda = new Debt({
             id,
+            user,
             idService,
-            date,
+            initialdate,
+            finaldate,
             amount,
         });
         await newDeuda.save();

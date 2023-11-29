@@ -18,7 +18,11 @@ const debtSchema = new mongoose.Schema(
             type: String,
             required: true
         },
-        date: {
+        initialdate: {
+            type: Date,
+            required: true
+        },
+        finaldate: {
             type: Date,
             required: true
         },
