@@ -40,7 +40,9 @@ async function createPago(pago) {
     const userFound = await User.findById(user);
     if (!userFound) return [null, "El usuario no existe"];
     
-    
+    // Actualizar la deuda del usuario
+    userFound.debt -= amount;
+    await userFound.save();
 
     const newPay = new Pay({
         id,

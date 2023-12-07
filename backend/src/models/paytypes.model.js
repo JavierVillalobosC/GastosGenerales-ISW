@@ -11,7 +11,7 @@ const paytypeSchema = new mongoose.Schema({
     }
 }, {
     versionKey: false
-})
+});
 
 
 const Paytype = mongoose.model("Paytype", paytypeSchema);
