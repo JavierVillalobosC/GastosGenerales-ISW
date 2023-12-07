@@ -3,6 +3,8 @@
 const Debt = require("../models/deuda.model.js");
 const User = require("../models/user.model.js");
 const { handleError } = require("../utils/errorHandler");
+const debtStates = require("../models/debtstate.model.js");
+const Categoria = require("../models/categorias.model.js");
 
 /**
  * 
@@ -32,13 +34,21 @@ async function getDeudas() {
 async function createDeuda(deuda) {
     try{
 
-    const { id, user, idService, initialdate, finaldate, amount, numerocuotas } = deuda;
+    const { id, user, idService, initialdate, finaldate, amount, numerocuotas, estado } = deuda;
     
     const deudaFound = await Debt.findOne({ id: deuda.id });
     if (deudaFound) return [null, "La deuda ya existe"];
 
     const userFound = await User.findById(user);
     if (!userFound) return [null, "El usuario no existe"];
+
+    const debtStatesFound = await debtStates.find({ name: { $in: estado } });
+    if (debtStatesFound.length === 0) return [null, "El estado no existe"];
+    const mydebtStates = debtStatesFound.map((estado) => estado._id);
+
+    const idServiceFound = await Categoria.find({ name: { $in: idService } });
+    if (idServiceFound.length === 0) return [null, "El servicio especificado no existe"];
+    const myidService = idServiceFound.map((idService) => idService._id);
     
     // Actualizar la deuda del usuario
     userFound.debt += amount;
@@ -49,12 +59,13 @@ async function createDeuda(deuda) {
     const newDebt = new Debt({
         id,
         user,
-        idService,
+        idService: myidService,
         initialdate,
         finaldate,
         amount,
         valorcuota,
         numerocuotas,
+        estado: mydebtStates
     });
     await newDebt.save();
 

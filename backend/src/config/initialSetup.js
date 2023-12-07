@@ -4,6 +4,7 @@ const Role = require("../models/role.model.js");
 const User = require("../models/user.model.js");
 const State = require("../models/state.model.js");
 const Categoria = require("../models/categorias.model.js");
+const DebtStates = require("../models/debtstate.model.js");
 /**
  * Crea los roles por defecto en la base de datos.
  * @async
@@ -102,9 +103,26 @@ async function createUsers() {
   }
 }
 
+async function createDebtStates() {
+  try {
+    const count = await DebtStates.estimatedDocumentCount();
+    if (count > 0) return;
+
+    await Promise.all([
+      new DebtStates({ name: "Pagada" }).save(),
+      new DebtStates({ name: "Pendiente" }).save(),
+      new DebtStates({ name: "Vencida" }).save(),
+    ]);
+    console.log("* => Estados de deuda creados exitosamente");
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 module.exports = {
   createRoles,
   createUsers,
   createStates,
-  createCategorias
+  createCategorias,
+  createDebtStates
 };
