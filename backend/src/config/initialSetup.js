@@ -38,7 +38,7 @@ async function createCategorias() {
       new Categoria({ name: "Pago de patente municipal" }).save(),
       new Categoria({ name: "Pago de permisos de transito" }).save(),
       new Categoria({ name: "Pago de multas" }).save(),
-      new Categoria({ name: "Permsios de circulación" }).save(),
+      new Categoria({ name: "Permiso de circulación" }).save(),
       new Categoria({ name: "Multas" }).save(),
       new Categoria({ name: "Otros" }).save(),
     ]);
