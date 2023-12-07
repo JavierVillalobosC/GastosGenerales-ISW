@@ -41,10 +41,10 @@ const userSchema = new mongoose.Schema(
       ref: "State",
       }
     ],
-    //blacklisted: {
-      //type: Boolean,
-      //default: false,
-    //},
+    blacklisted: {
+      type: Boolean,
+      default: false,
+    },
   },
 
   {

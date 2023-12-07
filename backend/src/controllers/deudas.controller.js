@@ -44,6 +44,19 @@ async function createDeuda(req, res) {
       if (!newDeuda) {
         return respondError(req, res, 400, "No se creo la deuda");
       }
+
+      // Programa la tarea para mover al cliente a la lista negra después de 5 días
+      const fechaVencimiento = new Date(newDeuda.finaldate);
+      const cincoDiasDespues = new Date(fechaVencimiento.getTime() + 5 * 24 * 60 * 60 * 1000);
+      schedule.scheduleJob(cincoDiasDespues, async function() {
+          const deuda = await Debt.findById(newDeuda._id);
+          if (!deuda.paid) {
+              const user = await User.findById(deuda.userId);
+              user.blacklisted = true;
+              await user.save();
+              console.log(`El usuario con ID ${user._id} ha sido agregado a la lista negra.`);
+          }
+      });
   
       respondSuccess(req, res, 201, newDeuda);
     } catch (error) {

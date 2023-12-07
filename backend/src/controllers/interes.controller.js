@@ -40,7 +40,7 @@ async function aplicarInteres(req, res) {
             // Guarda la deuda actualizada
             await deuda.save();
 
-            // Programa la tarea para mover al cliente a la lista negra después de 5 días
+             // Programa la tarea para mover al cliente a la lista negra después de 5 días
             const fiveDaysLater = new Date(currentDate.getTime() + 5 * 24 * 60 * 60 * 1000);
             schedule.scheduleJob(fiveDaysLater, async function() {
                 const deuda = await Debt.findById(deudaId);
@@ -59,6 +59,24 @@ async function aplicarInteres(req, res) {
     }
 }
 
+async function obtenerUsuariosEnListaNegra(req, res) {
+    try {
+        // Busca los usuarios que están en la lista negra
+        const usuariosEnListaNegra = await User.find({ blacklisted: true });
+
+        if (!usuariosEnListaNegra) {
+            return res.status(404).json({ error: "No hay usuarios en la lista negra" });
+        }
+
+        // Devuelve la lista de usuarios en la lista negra
+        return res.status(200).json({ usuariosEnListaNegra });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: "Error al obtener la lista de usuarios en la lista negra" });
+    }
+}
+
 module.exports = {
-    aplicarInteres
+    aplicarInteres,
+    obtenerUsuariosEnListaNegra
 };
