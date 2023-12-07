@@ -36,7 +36,9 @@ async function getDeudas(req, res) {
 async function createDeuda(req, res) {
     try {
       const { body } = req;
-      const [newDeuda, deudaError] = await DebtService.createDeuda(body);
+      const [newDeuda, deudaError, valorcuota] = await DebtService.createDeuda(body);
+
+      console.log(`El valor de la cuota es: ${valorcuota}`);
   
       if (deudaError) return respondError(req, res, 400, deudaError);
       if (!newDeuda) {

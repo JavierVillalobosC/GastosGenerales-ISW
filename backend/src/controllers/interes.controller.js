@@ -1,11 +1,11 @@
 "use strict";
 
-const { respondSuccess, respondError } = require("../utils/resHandler");
+const { respondSuccess } = require("../utils/resHandler");
 const Debt = require("../models/deuda.model.js");
 const Rol = require("../models/role.model.js");
-const InterestService = require("../services/interes.service");
 const { handleError } = require("../utils/errorHandler");
 const User = require("../models/user.model.js");
+const schedule = require('node-schedule'); // Import node-schedule
 
 /**
  * Aplica un porcentaje de interés a una deuda vencida y maneja la lista negra.
@@ -40,40 +40,25 @@ async function aplicarInteres(req, res) {
             // Guarda la deuda actualizada
             await deuda.save();
 
-            return res.status(200).json({
-                message: "Interés aplicado con éxito",
-                interes: interes,
-                deuda: deuda.amount
+            // Programa la tarea para mover al cliente a la lista negra después de 5 días
+            const fiveDaysLater = new Date(currentDate.getTime() + 5 * 24 * 60 * 60 * 1000);
+            schedule.scheduleJob(fiveDaysLater, async function() {
+                const deuda = await Debt.findById(deudaId);
+                if (!deuda.paid && !deuda.appealed) {
+                    const user = await User.findById(deuda.userId);
+                    user.blacklisted = true;
+                    await user.save();
+                    console.log(`El usuario con ID ${user._id} ha sido agregado a la lista negra.`);
+                }
             });
-
-
-        } else {
-            return res.status(400).json({ error: "La deuda aún no está vencida" });
         }
-    } catch (error) {
-        handleError(error, "interes.controller -> aplicarInteres");
-        return res.status(500).json({ error: "Error interno del servidor" });
-    }
-}
 
-async function getIntereses (res)
-{
-    try
-    {
-        const intereses = await Debt.select('taxes').get();
-        return res.status(200).json({
-            message: "lista de intereses",
-            intereses: intereses,
-        });
-    }
-     catch(error)
-     {
-         handleError(error, "interes.controller -> getInteres");
-        return res.status(500).json({ error: "Error interno del servidor" });
+        return respondSuccess(req, res, 200, deuda);
+    } catch (error) {
+        return handleError(res, error);
     }
 }
 
 module.exports = {
-    aplicarInteres,
-    getIntereses
+    aplicarInteres
 };
