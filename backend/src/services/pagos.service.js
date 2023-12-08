@@ -2,6 +2,9 @@
 
 const Pay = require("../models/pago.model.js");
 const User = require("../models/user.model.js");
+const Deuda = require("../models/deuda.model.js");
+const debtStates = require("../models/debtstate.model.js");
+const paytypes = require("../models/paytypes.model.js");
 const { handleError } = require("../utils/errorHandler");
 
 /**
@@ -32,7 +35,7 @@ async function getPagos() {
 async function createPago(pago) {
     try{
 
-    const { id, user, idService, date, total_amount,  amount, status, type, paydate } = pago;
+    const { id, user, idService, date, amount, type, paydate, extend } = pago;
     
     const pagoFound = await Pay.findOne({ id: pago.id });
     if (pagoFound) return [null, "El pago ya existe"];
@@ -40,22 +43,47 @@ async function createPago(pago) {
     const userFound = await User.findById(user);
     if (!userFound) return [null, "El usuario no existe"];
     
+    const deudaFound = await Deuda.find({ idService: pago.idService });
+    if (!deudaFound) return [null, "La deuda no existe"];
+
+    const debtStatesFound = await debtStates.find({ name: { $in: estado } });
+    if (debtStatesFound.length === 0) return [null, "El estado no existe"];
+    const mydebtStates = debtStatesFound.map((estado) => estado._id);
+
+    const paytypesFound = await paytypes.find({ name: { $in: type } });
+    if (paytypesFound.length === 0) return [null, "El tipo de pago no existe"];
+    const mypaytypes = paytypesFound.map((type) => type._id);
+
+    //const extendFound = await extend.find({ name: { $in: extend } });
+    //if (extendFound.length === 0) return [null, "La extension no existe"];
+    //const myextend = extendFound.map((extend) => extend._id);
+    const extendWeeksFound = await paytypes.find({ extend: { $in: extend } });
+    if (extendWeeksFound.length === 0) return [null, "La extension no existe"];
+    const myextend = extendWeeksFound.map((extendWeek) => extendWeek._id);
+
     // Actualizar la deuda del usuario
     userFound.debt -= amount;
+    userFound.state = mydebtStates;
     await userFound.save();
+    
 
     const newPay = new Pay({
         id,
         user,
         idService,
         date,
-        total_amount,
+        total_amount: deudaFound.amount,
+        valorcuota: deudaFound.valorcuota,
         amount,
-        status,
-        type,
-        paydate
+        status: mydebtStates,
+        type: mypaytypes,
+        paydate,
+        extend: myextend
     });
-    
+    if (type === 'parcial') {
+        // Si el tipo de pago es 'parcial', extender paydate en la cantidad de semanas especificada
+        newPay.paydate = new Date(newPay.paydate.getTime() + extend * 7 * 24 * 60 * 60 * 1000);
+    }
     await newPay.save();
     return [newPay, null];
     } catch (error) {

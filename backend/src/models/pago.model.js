@@ -15,7 +15,8 @@ const paySchema = new mongoose.Schema(
         required: true
     },
     idService: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Categoria",
         required: true
     },
     date: {
@@ -28,17 +29,19 @@ const paySchema = new mongoose.Schema(
         required: true,
         min: 0
     },
-    amount: {
+    valordeuda: {
         type: Number,
-        required: true,
+        required: false,
         min: 0
     },
     status: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "DebtStates",
         required: true
     },
     type:{
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Paytype",
         required: true
     },
     paydate: {
