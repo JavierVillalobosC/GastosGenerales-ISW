@@ -177,6 +177,7 @@ async function updateDeuda(id, deuda) {
     }
 }
 
+
 /**
  * 
  * @param {string} Id de la deuda
