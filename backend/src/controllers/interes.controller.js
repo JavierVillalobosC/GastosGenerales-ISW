@@ -5,13 +5,25 @@ const Debt = require("../models/deuda.model.js");
 const Rol = require("../models/role.model.js");
 const { handleError } = require("../utils/errorHandler");
 const User = require("../models/user.model.js");
-const schedule = require('node-schedule'); // Import node-schedule
 const DEBTSTATES = require('../constants/debtstates.constants.js');
+const { crearInteres } = require("../services/interes.service.js");
+
+async function aplicarInteres(req, res) {
+    try {
+        await crearInteres();
+
+        // Envía una respuesta al cliente
+        res.json({ message: 'Intereses aplicados correctamente' });
+    } catch (error) {
+        console.error(`Error al aplicar intereses: ${error}`);
+        res.status(500).json({ message: 'Hubo un error al aplicar los intereses' });
+    }
+}
 
 /**
- * Aplica un porcentaje de interés a una deuda vencida y maneja la lista negra.
+ * Aplica un porcentaje de interés a una deuda vencida.
  */
-async function aplicarInteres(req, res) {
+/* async function aplicarInteres(req, res) {
     try {
         const { deudaId, tipoPago } = req.body;
 
@@ -40,27 +52,13 @@ async function aplicarInteres(req, res) {
 
             // Guarda la deuda actualizada
             await deuda.save();
-
-             // Programa la tarea para mover al cliente a la lista negra después de 5 días
-            //const fiveDaysLater = new Date(currentDate.getTime() + 5 * 24 * 60 * 60 * 1000);
-             //schedule.scheduleJob(fiveDaysLater, async function() {
-                 //const deuda = await Debt.findById(deudaId);
-                 //const debtState = await DebtStates.findById(deuda.stateId);
-             
-                 //if (debtState.name === DEBTSTATES[2]) {
-                     //const user = await User.findById(deuda.userId);
-                     //user.blacklisted = true;
-                     //await user.save();
-                     //console.log(`El usuario con ID ${user._id} ha sido agregado a la lista negra.`);
-                 //}
-             //});
         }
 
         return respondSuccess(req, res, 200, deuda);
     } catch (error) {
         return handleError(res, error);
     }
-}
+} */
 
 async function obtenerUsuariosEnListaNegra(req, res) {
     try {
@@ -107,6 +105,8 @@ async function actualizarUsuariosBlacklisted(req, res) {
         res.status(500).json({ message: 'Hubo un error al actualizar los usuarios' });
     }
 }
+
+
 
 module.exports = {
     aplicarInteres,

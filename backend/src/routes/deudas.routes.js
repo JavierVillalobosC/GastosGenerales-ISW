@@ -15,7 +15,9 @@ router.use(authenticationMiddleware);
 router.get("/", deudaController.getDeudas);
 router.post("/", authorizationMiddleware.isAdmin, deudaController.createDeuda);
 router.get("/:id", deudaController.getDeudaById);
+router.put('/removeFromBlacklist', deudaController.removeFromBlacklist);
 router.put("/:id", authorizationMiddleware.isAdmin, deudaController.updateDeuda);
 router.delete("/:id", authorizationMiddleware.isAdmin, deudaController.deleteDeuda);
+//router.put('/removeUserFromBlacklistIfDebtPaid/:id', authorizationMiddleware.isAdmin, deudaController.removeUserFromBlacklistIfDebtPaid);
 
 module.exports = router;

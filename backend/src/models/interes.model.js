@@ -9,10 +9,19 @@ const interestSchema = new mongoose.Schema(
             required: true,
             unique: true
         },
+        debt: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Debt',
+            required: true
+        },
+        amount: {
+            type: Number,
+            required: true
+        },
     }, {
         versionKey: false,
     });
 
-    const Interest = mongoose.model("Interest", interestSchema);
+const Interest = mongoose.model("Interest", interestSchema);
 
-    module.exports = Interest;
+module.exports = Interest;

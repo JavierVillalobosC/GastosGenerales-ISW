@@ -4,6 +4,7 @@ const { respondSuccess, respondError } = require("../utils/resHandler");
 const DebtService = require("../services/deudas.service");
 const { handleError } = require("../utils/errorHandler");
 const schedule = require('node-schedule');
+const DEBTSTATES = require('../constants/debtstates.constants.js');
 
 
 /**
@@ -46,19 +47,6 @@ async function createDeuda(req, res) {
         return respondError(req, res, 400, "No se creo la deuda");
       }
 
-      // Programa la tarea para mover al cliente a la lista negra después de 5 días
-      const fechaVencimiento = new Date(newDeuda.finaldate);
-      const cincoDiasDespues = new Date(fechaVencimiento.getTime() + 5 * 24 * 60 * 60 * 1000);
-      schedule.scheduleJob(cincoDiasDespues, async function() {
-          const deuda = await Debt.findById(newDeuda._id);
-          if (!deuda.paid) {
-              const user = await User.findById(deuda.userId);
-              user.blacklisted = true;
-              await user.save();
-              console.log(`El usuario con ID ${user._id} ha sido agregado a la lista negra.`);
-          }
-      });
-  
       respondSuccess(req, res, 201, newDeuda);
     } catch (error) {
       handleError(error, "deudas.controller -> createDeuda");
@@ -81,7 +69,7 @@ async function getDeudaById(req, res) {
   
       respondSuccess(req, res, 200, deuda);
     } catch (error) {
-      handleError(error, "pagos.controller -> getPagoById");
+      handleError(error, "deudas.controller -> getDeudaById");
       respondError(req, res, 400, error.message);
     }
   }
@@ -125,6 +113,16 @@ async function deleteDeuda(req, res) {
       respondError(req, res, 400, error.message);
     }
   }
+
+
+async function removeFromBlacklist(req, res) {
+    try {
+        await deudasService.removeFromBlacklist();
+        res.status(200).send({ message: 'Usuarios quitados de la lista negra si todas sus deudas están pagadas' });
+    } catch (error) {
+        res.status(500).send({ message: 'Error al quitar a los usuarios de la lista negra' });
+    }
+  };
   
   module.exports = {
       getDeudas,
@@ -132,4 +130,5 @@ async function deleteDeuda(req, res) {
       getDeudaById,
       updateDeuda,
       deleteDeuda,
+      removeFromBlacklist
   };
