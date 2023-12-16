@@ -6,12 +6,9 @@ const { handleError } = require("../utils/errorHandler");
 const debtStates = require("../models/debtstate.model.js");
 const Categoria = require("../models/categorias.model.js");
 const schedule = require('node-schedule');
-<<<<<<< HEAD
-=======
 const DEBTSTATES = require('../constants/debtstates.constants.js');
 
 
->>>>>>> c2b1ae07ab5da280e685aec5d15696469127cc1f
 /**
  * 
  * @returns {Promise} Promesa con el objeto de las deudas
@@ -167,10 +164,6 @@ async function updateDeuda(id, deuda) {
             initialdate,
             finaldate,
             amount,
-            actualamount: userFound.debt,
-            valorcuota,
-            numerocuotas,
-            estado: mydebtStates
         });
         await newDeuda.save();
 
