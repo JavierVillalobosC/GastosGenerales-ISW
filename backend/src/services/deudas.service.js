@@ -164,6 +164,10 @@ async function updateDeuda(id, deuda) {
             initialdate,
             finaldate,
             amount,
+            actualamount: userFound.debt,
+            valorcuota,
+            numerocuotas,
+            estado: mydebtStates
         });
         await newDeuda.save();
 
