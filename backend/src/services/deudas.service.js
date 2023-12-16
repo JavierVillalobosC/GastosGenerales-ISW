@@ -198,26 +198,27 @@ async function deleteDeuda(id) {
 
 async function removeFromBlacklist() {
     try {
-        // Obtén todos los usuarios que están en la lista negra
+        console.log('Obteniendo usuarios en la lista negra...');
         const blacklistedUsers = await User.find({ blacklisted: true });
+        console.log(`Usuarios en la lista negra: ${blacklistedUsers.length}`);
 
-        // Para cada usuario en la lista negra
         for (let user of blacklistedUsers) {
-            // Obtén todas las deudas del usuario
+            console.log(`Obteniendo deudas para el usuario ${user._id}...`);
             const userDebts = await Debt.find({ user: user._id });
+            console.log(`Deudas obtenidas: ${userDebts.length}`);
 
-            // Verifica si todas las deudas del usuario han sido pagadas
             const allDebtsPaid = userDebts.every(debt => debt.amount === 0);
+            console.log(`Todas las deudas pagadas: ${allDebtsPaid}`);
 
-            // Si todas las deudas del usuario han sido pagadas
             if (allDebtsPaid) {
-                // Quita al usuario de la lista negra
+                console.log(`Quitando al usuario ${user._id} de la lista negra...`);
                 user.blacklisted = false;
                 await user.save();
+                console.log(`Usuario ${user._id} quitado de la lista negra.`);
             }
         }
     } catch (error) {
-        handleError(error, "deudas.service -> removeUsersFromBlacklistIfDebtsPaid");
+        console.error('Error en deudas.service -> removeFromBlacklist:', error);
     }
 }
 
