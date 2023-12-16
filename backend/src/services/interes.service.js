@@ -56,11 +56,11 @@ async function crearInteres() {
                 // Determina el porcentaje de interés basado en el tipo de pago
                 let porcentajeInteres;
                 if (!pay) {
-                    porcentajeInteres = 0.15; // Por ejemplo, 2% para deudas no pagadas
+                    porcentajeInteres = 0.15; // 15% para deudas no pagadas
                 } else if (pay.type === 'total') {
-                    porcentajeInteres = 0.05; // Por ejemplo, 5% para pagos totales
+                    porcentajeInteres = 0.05; // 5% para pagos totales
                 } else if (pay.type === 'parcial') {
-                    porcentajeInteres = 0.10; // Por ejemplo, 10% para pagos parciales
+                    porcentajeInteres = 0.10; // 10% para pagos parciales
                 } else {
                     console.log(`Tipo de pago desconocido para la deuda con id ${debt._id}`);
                     continue; // Salta al siguiente ciclo del bucle
@@ -86,7 +86,7 @@ async function crearInteres() {
                 await newInterest.save();
                 // Actualiza el valor 'amount' de la deuda con el nuevo valor de la deuda más el interés
                 await Debt.updateOne({ _id: debt._id }, { amount: valorFinal });
-                
+
                 // Suma el valor 'amount' de la deuda al valor 'debt' del usuario
                 user.debt += valorFinal;
 
