@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+
 const fileSchema = new Schema({
     url: {
         type: String,
@@ -12,7 +13,17 @@ const fileSchema = new Schema({
     mimeType: {
         type: String,
         required: true
-    }
+    },
+   /*  userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+    },
+    appealId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Appeal',
+        required: true
+    } */
 });
 
-module.exports = mongoose.model('file', fileSchema);
+module.exports = mongoose.model('File', fileSchema);

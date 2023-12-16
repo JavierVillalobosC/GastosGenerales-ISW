@@ -45,6 +45,12 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    appeals: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Appeal",
+      },
+    ],
   },
 
   {

@@ -1,9 +1,15 @@
+const express = require('express');
 const multer = require('multer');
-const fs = require('fs')
+const fs = require('fs');
+
+
+const app = express();
+
+app.use(express.json());
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        const route = './upload/' + req.params.archivo
+        const route = './upload/' + req.params.appealId; // Usa el ID de la apelación para la ruta de destino
         if (!fs.existsSync(route)) {
             fs.mkdirSync(route, { recursive: true })
         }
@@ -28,8 +34,18 @@ const upload = multer({
         cb(null, true)
     },
     limits: {
-        fileSize: 1024 * 1024 * 15
+        fileSize: 1024 * 1024 * 5
     }
-})
+});
 
-module.exports = upload
+const fileSize = (req, res, next) => {
+    req.files.forEach(file => {
+        if (file.size > 1024 * 1024 * 5) { // 5MB
+            return res.status(400).send({ message: "El tamaño del archivo es demasiado grande" });
+        }
+    });
+    next();
+};
+
+
+module.exports = { upload, fileSize };

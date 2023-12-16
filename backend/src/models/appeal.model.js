@@ -1,31 +1,28 @@
-"use strict"
+// src/models/appeal.model.js
+const mongoose = require('mongoose');
 
-const mongoose = require("mongoose")
+const appealSchema = new mongoose.Schema({
 
-const appealSchema = new mongoose.Schema(
-{
-    id: {
-        type: String,
-        required: true,
-        unique: true
+    userId: { 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'User', 
+        required: true 
     },
-    user: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-        required: true
+    text: { 
+        type: String, 
+        required: true 
     },
-    description: {
+    files: [
+        { 
+            type: mongoose.Schema.Types.ObjectId, 
+            ref: 'File' 
+        }
+    ], // Referencia a los archivos
+    status: { 
         type: String,
-        required: true
-    },
-    status: {
-        type: String,
-        required: true
-    }
-}, {
-    versionKey: false,
+         enum: ['pending', 'approved', 'rejected'], 
+         default: 'pending' 
+        },
 });
 
-const Appeal = mongoose.model("Appeal", appealSchema);
-
-module.exports = Appeal;
+module.exports = mongoose.model('Appeal', appealSchema);
