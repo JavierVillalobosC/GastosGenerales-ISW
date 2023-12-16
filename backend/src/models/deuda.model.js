@@ -23,12 +23,12 @@ const debtSchema = new mongoose.Schema(
             type: Date,
             default: Date.now,
             required: true,
-            match: /^\d{2}-\d{2}-\d{4}$/
+            //match: /^\d{2}-\d{2}-\d{4}$/
         },
         finaldate: {
             type: Date,
             required: true,
-            match: /^\d{2}-\d{2}-\d{4}$/
+            //match: /^\d{2}-\d{2}-\d{4}$/
         },
         amount: {
             type: Number,

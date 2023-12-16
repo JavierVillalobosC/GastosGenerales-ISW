@@ -177,7 +177,6 @@ async function updateDeuda(id, deuda) {
     }
 }
 
-
 /**
  * 
  * @param {string} Id de la deuda
@@ -199,28 +198,67 @@ async function deleteDeuda(id) {
 
 async function removeFromBlacklist() {
     try {
-        // Obtén todos los usuarios que están en la lista negra
+        console.log('Obteniendo usuarios en la lista negra...');
         const blacklistedUsers = await User.find({ blacklisted: true });
+        console.log(`Usuarios en la lista negra: ${blacklistedUsers.length}`);
 
-        // Para cada usuario en la lista negra
         for (let user of blacklistedUsers) {
-            // Obtén todas las deudas del usuario
+            console.log(`Obteniendo deudas para el usuario ${user._id}...`);
             const userDebts = await Debt.find({ user: user._id });
+            console.log(`Deudas obtenidas: ${userDebts.length}`);
 
-            // Verifica si todas las deudas del usuario han sido pagadas
             const allDebtsPaid = userDebts.every(debt => debt.amount === 0);
+            console.log(`Todas las deudas pagadas: ${allDebtsPaid}`);
 
-            // Si todas las deudas del usuario han sido pagadas
             if (allDebtsPaid) {
-                // Quita al usuario de la lista negra
+                console.log(`Quitando al usuario ${user._id} de la lista negra...`);
                 user.blacklisted = false;
                 await user.save();
+                console.log(`Usuario ${user._id} quitado de la lista negra.`);
             }
         }
     } catch (error) {
-        handleError(error, "deudas.service -> removeUsersFromBlacklistIfDebtsPaid");
+        handleError(error, "deudas.service -> deleteDeuda");
     }
 }
+
+// Función para agregar al usuario a la lista negra
+const addToBlacklist = async function(user) {
+    user.blacklisted = true;
+    await user.save();
+    console.log(`El usuario con ID ${user._id} ha sido agregado a la lista negra.`);
+};
+
+// Función para verificar las deudas vencidas
+const checkOverdueDebts = async function() {
+    try {
+        // Obtén todas las deudas
+        const debts = await Debt.find().exec();
+
+        // Itera sobre cada deuda
+        for (let debt of debts) {
+            // Si la fecha de vencimiento ha pasado y el usuario no está en la lista negra
+            if (new Date(debt.finaldate) < new Date() && !debt.user.blacklisted) {
+                // Busca al usuario asociado con la deuda
+                const user = await User.findById(debt.user).exec();
+
+                // Verifica que el usuario exista
+                if (!user) {
+                    console.log(`Usuario no encontrado para la deuda con id ${debt._id}`);
+                    continue; // Salta al siguiente ciclo del bucle
+                }
+
+                // Agrega al usuario a la lista negra
+                addToBlacklist(user);
+            }
+        }
+    } catch (error) {
+        console.error('Error en deudas.service -> checkOverdueDebts:', error);
+    }
+};
+
+// Programa la función para que se ejecute cada minuto
+setInterval(checkOverdueDebts, 60 * 1000);
 
 module.exports = {
     getDeudas,
