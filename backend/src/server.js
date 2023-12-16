@@ -11,7 +11,7 @@ const cookieParser = require("cookie-parser");
 /** El enrutador principal */
 const indexRoutes = require("./routes/index.routes.js");
 
-const pagoRoutes = require("./routes/pagos.routes.js");
+
 
 // Importa el archivo 'configDB.js' para crear la conexión a la base de datos
 const { setupDB } = require("./config/configDB.js");
@@ -29,7 +29,7 @@ async function setupServer() {
     // Agrega el middleware para el manejo de datos en formato JSON
     server.use(express.json());
     // Agregamos los cors
-    server.use(cors({ origin: "/" }));
+    server.use(cors({ credentials: true, origin: true }));
     // Agregamos el middleware para el manejo de cookies
     server.use(cookieParser());
     // Agregamos morgan para ver las peticiones que se hacen al servidor
