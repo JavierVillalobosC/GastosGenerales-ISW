@@ -9,6 +9,12 @@ const paySchema = new mongoose.Schema(
         required: true,
         unique: true
     },
+    id_deuda: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Debt",
+        required: true
+     },
+
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
@@ -46,6 +52,7 @@ const paySchema = new mongoose.Schema(
     },
     paydate: {
         type: Date,
+        default: Date.now,
         required: true,
         match: /^\d{2}-\d{2}-\d{4}$/
     }

@@ -5,7 +5,7 @@ const User = require("../models/user.model.js");
 const { handleError } = require("../utils/errorHandler");
 const debtStates = require("../models/debtstate.model.js");
 const Categoria = require("../models/categorias.model.js");
-
+const schedule = require('node-schedule');
 /**
  * 
  * @returns {Promise} Promesa con el objeto de las deudas

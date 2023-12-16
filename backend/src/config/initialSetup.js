@@ -5,6 +5,7 @@ const User = require("../models/user.model.js");
 const State = require("../models/state.model.js");
 const Categoria = require("../models/categorias.model.js");
 const DebtStates = require("../models/debtstate.model.js");
+const paytype = require("../models/paytypes.model.js");
 /**
  * Crea los roles por defecto en la base de datos.
  * @async
@@ -119,10 +120,26 @@ async function createDebtStates() {
   }
 }
 
+async function createPayTypes() {
+  try {
+    const count = await paytype.estimatedDocumentCount();
+    if (count > 0) return;
+
+    await Promise.all([
+      new paytype({ name: "total" }).save(),
+      new paytype({ name: "parcial" }).save(),
+    ]);
+    console.log("* => Formas de pago creadas exitosamente");
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 module.exports = {
   createRoles,
   createUsers,
   createStates,
   createCategorias,
-  createDebtStates
+  createDebtStates,
+  createPayTypes
 };
