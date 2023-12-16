@@ -17,7 +17,7 @@ const pagoRoutes = require("./routes/pagos.routes.js");
 const { setupDB } = require("./config/configDB.js");
 // Importa el handler de errores
 const { handleFatalError, handleError } = require("./utils/errorHandler.js");
-const { createRoles, createUsers, createStates, createCategorias, createDebtStates } = require("./config/initialSetup");
+const { createRoles, createUsers, createStates, createCategorias, createDebtStates, createPayTypes } = require("./config/initialSetup");
 
 /**
  * Inicia el servidor web
@@ -68,6 +68,8 @@ async function setupAPI() {
     await createCategorias();
 
     await createDebtStates();
+
+    await createPayTypes();
   } catch (err) {
     handleFatalError(err, "/server.js -> setupAPI");
   }

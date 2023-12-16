@@ -15,6 +15,7 @@ router.use(authenticationMiddleware);
 router.get("/", pagoController.getPagos);
 router.post("/", authorizationMiddleware.isAdmin, pagoController.createPago);
 router.get("/:id", pagoController.getPagoById);
+router.get("/user/:id", pagoController.getPagoByUser);
 router.put("/:id", authorizationMiddleware.isAdmin, pagoController.updatePago);
 router.delete("/:id", authorizationMiddleware.isAdmin, pagoController.deletePago);
 

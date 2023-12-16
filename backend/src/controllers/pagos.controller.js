@@ -56,6 +56,19 @@ async function createPago(req, res) {
  * @returns {Promise} Promesa con el objeto de pago
  */
 
+async function getPagoByUser(req, res) {
+  try {
+    const { params } = req;
+    const [pago, errorPago] = await PayService.getPagoByUser(params.id);
+    if (errorPago) return respondError(req, res, 404, errorPago);
+
+    respondSuccess(req, res, 200, pago);
+  } catch (error) {
+    handleError(error, "pagos.controller -> getPagoByUser");
+    respondError(req, res, 400, error.message);
+  }
+}
+
 async function getPagoById(req, res) {
   try {
     const { params } = req;
@@ -112,6 +125,7 @@ async function deletePago(req, res) {
 module.exports = {
     getPagos,
     createPago,
+    getPagoByUser,
     getPagoById,
     updatePago,
     deletePago,

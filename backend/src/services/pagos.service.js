@@ -35,7 +35,7 @@ async function getPagos() {
 async function createPago(pago) {
     try{
 
-    const { id, user, idService, date, amount, type, paydate, extend } = pago;
+    const { id, id_deuda,user, idService, date, amount, type, estado,extend } = pago;
     
     const pagoFound = await Pay.findOne({ id: pago.id });
     if (pagoFound) return [null, "El pago ya existe"];
@@ -43,8 +43,11 @@ async function createPago(pago) {
     const userFound = await User.findById(user);
     if (!userFound) return [null, "El usuario no existe"];
     
-    const deudaFound = await Deuda.find({ idService: pago.idService });
+    const deudaFound = await Deuda.findById(id_deuda);
     if (!deudaFound) return [null, "La deuda no existe"];
+
+    const userdeudaFound = await Deuda.findOne({ user: userFound._id });
+    if (!userdeudaFound) return [null, "El usuario no tiene deudas"];
 
     const debtStatesFound = await debtStates.find({ name: { $in: estado } });
     if (debtStatesFound.length === 0) return [null, "El estado no existe"];
@@ -54,24 +57,27 @@ async function createPago(pago) {
     if (paytypesFound.length === 0) return [null, "El tipo de pago no existe"];
     const mypaytypes = paytypesFound.map((type) => type._id);
 
-    //const extendFound = await extend.find({ name: { $in: extend } });
-    //if (extendFound.length === 0) return [null, "La extension no existe"];
-    //const myextend = extendFound.map((extend) => extend._id);
     const extendWeeksFound = await paytypes.find({ extend: { $in: extend } });
     if (extendWeeksFound.length === 0) return [null, "La extension no existe"];
     const myextend = extendWeeksFound.map((extendWeek) => extendWeek._id);
 
+    const paydate = userdeudaFound.finaldate;
     // Actualizar la deuda del usuario
-    userFound.debt -= amount;
-    userFound.state = mydebtStates;
-    await userFound.save();
+    
+    if (!deudaFound || deudaFound.amount === undefined) {
+        return [null, "No se encontró la deuda o la cantidad de la deuda es indefinida"];
+    };
+
+    
+    // Convertir el objeto Date de nuevo a una cadena en el formato "dd-mm-yyyy"
     
 
     const newPay = new Pay({
         id,
+        id_deuda,
         user,
         idService,
-        date,
+        date ,
         total_amount: deudaFound.amount,
         valorcuota: deudaFound.valorcuota,
         amount,
@@ -85,6 +91,10 @@ async function createPago(pago) {
         newPay.paydate = new Date(newPay.paydate.getTime() + extend * 7 * 24 * 60 * 60 * 1000);
     }
     await newPay.save();
+
+    userFound.debt = Math.max(0, userFound.debt - amount);
+    userFound.state = mydebtStates;
+    await userFound.save();
     return [newPay, null];
     } catch (error) {
         handleError(error, "pagos.service -> createPago");
@@ -96,6 +106,19 @@ async function createPago(pago) {
  * @param {string} Id del pago
  * @returns {Promise} Promesa con el objeto de pago
  */
+
+async function getPagosByUser(userId) {
+    try {
+        const userFound = await User.findById(userId);
+        if (!userFound) return [null, "El usuario no existe"];
+
+        const pagos = await Pay.find({ user: userId });
+        return [pagos, null];
+    } catch (error) {
+        // Manejar el error
+        handleError(error, "pagos.service -> getPagosByUser");
+    }
+}
 
 async function getPagoById(id) {
     try {
@@ -116,27 +139,50 @@ async function getPagoById(id) {
  * @returns {Promise} Promesa con el objeto de pago actualizado
  */
 
+
+
 async function updatePago(id, pago) {
     try {
         const pagoFound = await Pay.findById(id);
         if (!pagoFound) return [null, "El pago no existe"];
 
-        const { idService, date, total_amount, amount, status, type, paydate } = pago;
-        const newPago = new Pay({
+        const userFound = await User.findById(user);
+        if (!userFound) return [null, "El usuario no existe"];
+    
+        const deudaFound = await Deuda.find({ idService: pago.idService });
+        if (!deudaFound) return [null, "La deuda no existe"];
+
+        const debtStatesFound = await debtStates.find({ name: { $in: estado } });
+        if (debtStatesFound.length === 0) return [null, "El estado no existe"];
+        const mydebtStates = debtStatesFound.map((estado) => estado._id);
+
+        const paytypesFound = await paytypes.find({ name: { $in: type } });
+        if (paytypesFound.length === 0) return [null, "El tipo de pago no existe"];
+        const mypaytypes = paytypesFound.map((type) => type._id);
+
+        const extendWeeksFound = await paytypes.find({ extend: { $in: extend } });
+        if (extendWeeksFound.length === 0) return [null, "La extension no existe"];
+        const myextend = extendWeeksFound.map((extendWeek) => extendWeek._id);
+
+        const { idService, date, amount, type, paydate } = pago;
+        const newPay = new Pay({
             id,
+            user,
             idService,
             date,
-            total_amount,
+            total_amount: deudaFound.amount,
+            valorcuota: deudaFound.valorcuota,
             amount,
-            status,
-            type,
-            paydate
+            status: mydebtStates,
+            type: mypaytypes,
+            paydate,
+            extend: myextend
         });
-        if (amount / total_amount >= 0.6) {
-            newPay.paydate = new Date(newPay.paydate.getTime() + (14 * 24 * 60 * 60 * 1000));
+        if (type === 'parcial') {
+            // Si el tipo de pago es 'parcial', extender paydate en la cantidad de semanas especificada
+            newPay.paydate = new Date(newPay.paydate.getTime() + extend * 7 * 24 * 60 * 60 * 1000);
         }
-
-        await newPago.save();
+        await newPay.save();
 
         return [newPago, null];
     } catch (error) {
@@ -167,6 +213,7 @@ module.exports = {
     getPagos,
     createPago,
     getPagoById,
+    getPagosByUser,
     updatePago,
     deletePago
 };
