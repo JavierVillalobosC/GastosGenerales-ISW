@@ -10,6 +10,7 @@ const authRoutes = require("./auth.routes.js");
 
 const pagoRoutes = require("./pagos.routes.js");
 
+const statesRoutes = require("./states.routes.js");
 const deudaRoutes = require("./deudas.routes.js");
 
 const interesRoutes = require("./interes.routes.js");
@@ -41,5 +42,7 @@ router.use("/sendMail", mailerRoutes);
 router.use("/file", fileRoutes);
 
 router.use("/appeals", appealRoutes);
+
+router.use("/states", statesRoutes);
 // Exporta el enrutador
 module.exports = router;

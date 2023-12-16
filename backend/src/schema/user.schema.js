@@ -44,7 +44,8 @@ const userBodySchema = Joi.object({
     "any.required": "El rut es obligatorio.",
     "string.base": "El rut debe ser de tipo string.",
   }),
-  state: Joi.array().items(Joi.string().valid(...STATES)).required().messages({
+  state: Joi.array().items(Joi.string().valid(...STATES))
+  .required().messages({
     "array.base": "El estado debe ser de tipo array.",
     "any.required": "El estado es obligatorio.",
     "string.base": "El estado debe ser de tipo string.",

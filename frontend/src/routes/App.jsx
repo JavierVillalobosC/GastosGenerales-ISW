@@ -2,13 +2,13 @@ function App() {
   return (
     <div style={{ 
       backgroundColor: 'white', 
-      height: '83.2vh', 
+      height: '100vh', 
       width: '100%', 
       display: 'flex', 
-      justifyContent: 'flex-start', 
+      justifyContent: 'center', 
       alignItems: 'center' 
     }}>
-      <h1 style={{ textAlign: 'center' }}>Pagina principal</h1>
+      <h1 style={{ textAlign: 'center' }}>Bienvenido a la plataforma de pagos de la Municipalidad</h1>
     </div>
   );
 }
