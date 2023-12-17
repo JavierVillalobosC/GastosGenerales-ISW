@@ -12,7 +12,6 @@ const cookieParser = require("cookie-parser");
 const indexRoutes = require("./routes/index.routes.js");
 
 
-
 // Importa el archivo 'configDB.js' para crear la conexión a la base de datos
 const { setupDB } = require("./config/configDB.js");
 // Importa el handler de errores
@@ -70,6 +69,7 @@ async function setupAPI() {
     await createDebtStates();
 
     await createPayTypes();
+
   } catch (err) {
     handleFatalError(err, "/server.js -> setupAPI");
   }

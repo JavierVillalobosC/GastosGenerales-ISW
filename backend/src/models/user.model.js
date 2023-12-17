@@ -58,6 +58,13 @@ const userSchema = new mongoose.Schema(
   },
 );
 
+userSchema.pre('save', function(next) {
+  if (this.debt) {
+      this.debt = Math.round(this.debt);
+  }
+  next();
+});
+
 /** Encripta la contraseña del usuario */
 userSchema.statics.encryptPassword = async (password) => {
   const salt = await bcrypt.genSalt(10);

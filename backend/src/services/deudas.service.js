@@ -7,7 +7,7 @@ const debtStates = require("../models/debtstate.model.js");
 const Categoria = require("../models/categorias.model.js");
 const schedule = require('node-schedule');
 const DEBTSTATES = require('../constants/debtstates.constants.js');
-
+const State = require('../models/state.model.js');
 
 /**
  * 
@@ -75,16 +75,20 @@ async function createDeuda(deuda) {
 
     await newDebt.save();
 
+    // Guarda el usuario actualizado
+    const updatedUser = await User.findById(newDebt.user);
+    await updatedUser.save();
+
     const blacklistDate = new Date(newDebt.finaldate);
     blacklistDate.setSeconds(blacklistDate.getSeconds() + 10);
 
-    // Función para agregar al usuario a la lista negra
+    /* // Función para agregar al usuario a la lista negra
     const addToBlacklist = async function() {
         const user = await User.findById(newDebt.user);
         user.blacklisted = true;
         await user.save();
         console.log(`El usuario con ID ${user._id} ha sido agregado a la lista negra.`);
-    };
+    }; */
 
     // Verifica si la fecha de vencimiento ya ha pasado
     if (blacklistDate < new Date()) {
@@ -257,8 +261,80 @@ const checkOverdueDebts = async function() {
     }
 };
 
-// Programa la función para que se ejecute cada minuto
-setInterval(checkOverdueDebts, 60 * 1000);
+// Función para actualizar el estado del usuario
+async function updateUserState(userId) {
+    // Busca al usuario por su ID
+    const user = await User.findById(userId);
+  
+    // Busca los estados "deudor" y "al día"
+    const debtorState = await State.findOne({ name: 'deudor' });
+    const upToDateState = await State.findOne({ name: 'al dia' });
+
+    // Variable para rastrear si el estado del usuario ha cambiado
+    let stateChanged = false;
+  
+    // Si el usuario no tiene deuda o si el plazo de pago del usuario no ha vencido, cambia su estado a "al día"
+if (user.debt === 0 || user.paymentDueDate >= new Date()) {
+    let justification = '';
+    if (user.debt === 0) {
+        justification = 'El usuario no tiene deuda.';
+    } else if (user.paymentDueDate >= new Date()) {
+        justification = 'El plazo de pago del usuario aún no ha vencido.';
+    }
+    if (user.state !== upToDateState._id) {
+        console.log(`[!] El estado del usuario ${userId} ha sido actualizado a 'al día'. ${justification}`);
+    }
+    user.state = upToDateState._id;
+    stateChanged = true;
+}
+    // Si el plazo de pago del usuario ha vencido y su deuda es mayor a 0, cambia su estado a "deudor"
+if (user.paymentDueDate < new Date() && user.debt > 0) {
+    if (user.state !== debtorState._id) {
+        console.log(`El estado del usuario ${userId} ha sido actualizado a 'deudor'. Deuda: ${user.debt}`);
+        user.state = debtorState._id;
+        stateChanged = true;
+    }
+}
+
+    // Si el estado del usuario no ha cambiado, imprime un mensaje
+if (!stateChanged) {
+    let justification = '';
+    if (user.debt === 0) {
+        justification = '[v] El usuario no tiene deudas.\n';
+    } else if (user.paymentDueDate >= new Date()) {
+        justification = '[v] La deuda del usuario aún no ha vencido.\n';
+    } else {
+        justification = `> El plazo de pago de la deuda ha vencido.\n> El usuario tiene deudas por pagar.\n> Deuda: ${user.debt}`;
+    }
+    console.log(`[!] Se revisó el usuario ${userId}, pero su estado no necesitó ser modificado.\n${justification}`);
+}
+
+// Imprime el estado del usuario
+const userState = await State.findById(user.state);
+console.log(`> El estado del usuario ${userId} es: ${userState.name}`);
+
+    // Guarda el usuario actualizado
+    await user.save();
+}
+
+// Función para actualizar el estado de todos los usuarios
+async function updateAllUserStates() {
+    // Obtiene todos los usuarios
+    const users = await User.find();
+
+    // Actualiza el estado de cada usuario
+    for (let user of users) {
+        await updateUserState(user._id);
+    }
+}
+
+updateAllUserStates();
+// Ejecuta la función updateAllUserStates cada 10 minutos
+setInterval(updateAllUserStates, 600000);
+
+
+// Programa la función para que se ejecute cada 10 minutos
+setInterval(checkOverdueDebts, 600 * 1000);
 
 module.exports = {
     getDeudas,
@@ -266,7 +342,8 @@ module.exports = {
     getDeudaById,
     updateDeuda,
     deleteDeuda,
-    removeFromBlacklist
+    removeFromBlacklist,
+
 };
 
 
