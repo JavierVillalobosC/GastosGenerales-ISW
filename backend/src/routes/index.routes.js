@@ -19,6 +19,8 @@ const mailerRoutes = require("./mailer.routes.js");
 
 const fileRoutes = require("./file.routes.js");
 
+const categoriaRoutes = require("./categorias.routes.js");
+
 const appealRoutes = require("./appeal.routes.js");
 /** Middleware de autenticación */
 const authenticationMiddleware = require("../middlewares/authentication.middleware.js");
@@ -33,6 +35,7 @@ router.use("/auth", authRoutes);
 
 router.use("/pagos", pagoRoutes);
 
+router.use("/categorias", categoriaRoutes);
 router.use("/deudas", deudaRoutes);
 
 router.use("/interes", interesRoutes);

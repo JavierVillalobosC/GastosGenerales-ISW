@@ -8,9 +8,9 @@ const columns = [
   { field: 'id', headerName: 'ID', width: 70 },
   { field: 'username', headerName: 'Usuario', width: 130 },
   { field: 'rut', headerName: 'RUT', width: 130 },
-  { field: 'email', headerName: 'Email', width: 130 },
-  { field: 'debt', headerName: 'Deuda Total', width: 110 , valueFormatter: (params) => `$${params.value}`},
-  { field: 'Estado', headerName: 'Estado', width: 160 },
+  { field: 'email', headerName: 'Email', width: 160 },
+  { field: 'debt', headerName: 'Deuda Total (CLP)', width: 130 , valueFormatter: (params) => `$${params.value}`},
+  { field: 'Estado', headerName: 'Estado', width: 110 },
   { field: 'edit', headerName: 'Editar', width: 130,renderCell: (params) => (
       <IconButton 
         color="primary" 
@@ -55,7 +55,12 @@ function Usuarios() {
   }, []);
 
   return (
-    <div style={{ height: 400, width: '100%' }}>
+    <div style={{ backgroundColor: 'white', 
+    height: '100vh', 
+    width: '100%', 
+    display: 'flex', 
+    justifyContent: 'center', 
+    alignItems: 'center' }}>
       <DataGrid
         rows={rows}
         columns={columns}
