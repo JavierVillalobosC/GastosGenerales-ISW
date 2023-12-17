@@ -22,6 +22,8 @@ const fileRoutes = require("./file.routes.js");
 const categoriaRoutes = require("./categorias.routes.js");
 
 const appealRoutes = require("./appeal.routes.js");
+
+const reportRoutes = require("./report.routes.js");
 /** Middleware de autenticación */
 const authenticationMiddleware = require("../middlewares/authentication.middleware.js");
 
@@ -45,6 +47,8 @@ router.use("/sendMail", mailerRoutes);
 router.use("/file", fileRoutes);
 
 router.use("/appeals", appealRoutes);
+
+router.use("/report", reportRoutes);
 
 router.use("/states", statesRoutes);
 // Exporta el enrutador
