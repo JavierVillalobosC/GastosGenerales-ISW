@@ -99,7 +99,22 @@ async function crearInteres() {
     }
 }
 
+async function eliminarInteres(debtId) {
+    try {
+        const result = await Interest.deleteOne({ debt: debtId });
+        if (result.deletedCount === 0) {
+            console.log(`No se encontró un interés para la deuda con id ${debtId}`);
+            return false; // No se eliminó ningún interés
+        }
+        return true; // Se eliminó un interés
+    } catch (error) {
+        handleError(error, "intereses.service -> eliminarInteres");
+        return false; // Ocurrió un error, por lo que no se eliminó ningún interés
+    }
+}
+
 module.exports = {
     getIntereses,
-    crearInteres
+    crearInteres,
+    eliminarInteres
 };

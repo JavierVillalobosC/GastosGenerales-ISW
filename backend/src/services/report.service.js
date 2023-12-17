@@ -30,11 +30,11 @@ async function getDeudasReportForUser(userId) {
         averageAmount = totalAmount / deudas.length;
         averageNumberOfPayments = totalNumberOfPayments / deudas.length;
 
-        // Aquí puedes agregar lógica para procesar los datos de las deudas y formatearlos para tu informe
+        
         const report = deudas.map(deuda => {
             return {
                 id: deuda.id,
-                user: deuda.user.username, // Asumiendo que el usuario tiene un campo de nombre de usuario
+                user: deuda.user.username, 
                 serviceId: deuda.idService,
                 initialDate: deuda.initialdate,
                 finalDate: deuda.finaldate,
@@ -67,7 +67,7 @@ async function getUsersReport() {
 
         if (!users) return [null, "No hay usuarios"];
 
-        // Aquí puedes agregar lógica para procesar los datos de los usuarios y formatearlos para tu informe
+        
 
         return [users, null];
     } catch (error) {
@@ -97,11 +97,11 @@ async function getPagosReport() {
 
         averageAmount = totalAmount / pagos.length;
 
-        // Aquí puedes agregar lógica para procesar los datos de los pagos y formatearlos para tu informe
+        
         const report = pagos.map(pago => {
             return {
                 id: pago.id,
-                user: pago.user.username, // Asumiendo que el usuario tiene un campo de nombre de usuario
+                user: pago.user.username, 
                 serviceId: pago.idService,
                 date: pago.date,
                 amount: pago.amount,
@@ -140,11 +140,11 @@ async function getPagosReportForUser(userId) {
 
         averageAmount = totalAmount / pagos.length;
 
-        // Aquí puedes agregar lógica para procesar los datos de los pagos y formatearlos para tu informe
+        
         const report = pagos.map(pago => {
             return {
                 id: pago.id,
-                user: pago.user.username, // Asumiendo que el usuario tiene un campo de nombre de usuario
+                user: pago.user.username, 
                 serviceId: pago.idService,
                 date: pago.date,
                 amount: pago.amount,

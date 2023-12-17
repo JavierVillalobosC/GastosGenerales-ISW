@@ -2,6 +2,7 @@
 const Appeal = require('../models/appeal.model');
 const User = require('../models/user.model');
 const { handleError } = require('../utils/errorHandler');
+const { eliminarInteres } = require("../services/interes.service.js");
 
 /**
  *  
@@ -141,6 +142,16 @@ async function updateAppealStatus(id, status) {
     try {
         const appeal = await Appeal.findByIdAndUpdate(id, { status }, { new: true });
         if (!appeal) return [null, 'Appeal not found'];
+
+        // Si el estado es 'approved', eliminar el interés
+        if (status === 'approved') {
+            const interesEliminado = await eliminarInteres(appeal.userId);
+            if (interesEliminado) {
+                console.log(`Se eliminó el interés para el usuario con id ${appeal.userId}`);
+            } else {
+                console.log(`No se eliminó ningún interés para el usuario con id ${appeal.userId}`);
+            }
+        }
 
         return [appeal, null];
     } catch (error) {
