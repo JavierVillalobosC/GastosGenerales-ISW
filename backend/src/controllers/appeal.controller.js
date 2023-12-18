@@ -1,5 +1,6 @@
 // src/controllers/appeal.controller.js
 const appealService = require('../services/appeal.service');
+const { eliminarInteres } = require("../services/interes.service.js");
 const { respondSuccess, respondError } = require('../utils/resHandler');
 const { handleError } = require('../utils/errorHandler');
 
@@ -34,10 +35,13 @@ async function getAllAppeals(req, res) {
 async function createAppeal(req, res) {
     try {
         const { body, files } = req;
+        if (!body.debtId) {
+            return respondError(req, res, 400, 'Se requiere un debtId');
+        }
         if (files) {
             for (let file of files) {
                 const fileOwner = await fileService.getFileOwner(file.id);
-                if (fileOwner !== user.id) {
+                if (fileOwner !== body.userId) {
                     return respondError(req, res, 403, 'User does not own the file');
                 }
             }

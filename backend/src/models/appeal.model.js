@@ -8,6 +8,11 @@ const appealSchema = new mongoose.Schema({
         ref: 'User', 
         required: true 
     },
+    debtId: { 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'Debt', 
+        required: true 
+    },
     text: { 
         type: String, 
         required: true 

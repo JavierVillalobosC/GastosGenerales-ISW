@@ -85,7 +85,7 @@ async function crearInteres() {
                 // Guarda el nuevo interés en la base de datos
                 await newInterest.save();
                 // Actualiza el valor 'amount' de la deuda con el nuevo valor de la deuda más el interés
-                await Debt.updateOne({ _id: debt._id }, { amount: valorFinal });
+                await Debt.updateOne({ _id: debt._id }, { amount: valorFinal, interestApplied: true });
 
                 // Suma el valor 'amount' de la deuda al valor 'debt' del usuario
                 user.debt += valorFinal;
