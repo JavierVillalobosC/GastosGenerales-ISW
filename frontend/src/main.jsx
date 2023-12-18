@@ -6,6 +6,7 @@ import Root from './routes/Root.jsx';
 import ErrorPage from './routes/ErrorPage.jsx';
 import Login from './routes/Login.jsx';
 import Usuarios from './routes/usuarios.jsx';
+import Pagos from './routes/Pagos.jsx';
 import Notificaciones from './routes/Notificaciones.jsx'
 
 const router = createBrowserRouter([
@@ -23,7 +24,11 @@ const router = createBrowserRouter([
         element: <Usuarios />, // Componente Usuarios
       },
       {
-        path: '/notificaciones', // Ruta para la vista de Notificaciones
+        path: '/pagos', // Ruta para la vista de Pagos
+        element: <Pagos />, // Componente Pagos
+      },
+      {
+        path: '/Notificaciones', // Ruta para la vista de Notificaciones
         element: <Notificaciones />, // Componente Notificaciones
       },
     ],

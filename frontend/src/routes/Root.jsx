@@ -1,13 +1,20 @@
 import { Outlet } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { logout } from '../services/auth.service';
+
 import { AuthProvider, useAuth } from '../context/AuthContext';
-import { ListItemButton, AppBar, Toolbar, CssBaseline, IconButton, Typography, Button, Drawer, List, ListItem, ListItemText, Box } from '@mui/material';
+import { ListItemButton, ListItemIcon, AppBar, Toolbar, CssBaseline, IconButton, Typography, Button, Drawer, List, ListItem, ListItemText, Box } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-
+import PersonIcon from '@mui/icons-material/Person';
+import MoneyOffIcon from '@mui/icons-material/MoneyOff';
+import PaymentIcon from '@mui/icons-material/Payment';
+import ReportIcon from '@mui/icons-material/Report';
+import ServicesIcon from '@mui/icons-material/RoomService';
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import AppealIcon from '@mui/icons-material/ReportProblem';
 function Root() {
   return (
     <AuthProvider>
@@ -26,6 +33,7 @@ function PageRoot() {
   };
 
   const { user } = useAuth();
+  console.log(user);
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -41,36 +49,61 @@ function PageRoot() {
           <Typography variant="subtitle1" component="div" sx={{ flexGrow: 1 }}>
             Estas logeado como: {user.email}
           </Typography>
-          <IconButton color="inherit">
-            <AccountCircle />
-          </IconButton>
+          
           <Button color="inherit" onClick={handleLogout}>Cerrar sesion</Button>
         </Toolbar>
       </AppBar>
       <Box sx={{ width: '10px', flexShrink: 0 }}>
-        <Drawer variant="permanent" open sx={{ '& .MuiDrawer-paper': { mt: '64px',  width: '200px',height: 'calc(100% - 64px)', backgroundColor: '#BDBDBD '} }}>
+        <Drawer variant="permanent" open sx={{ '& .MuiDrawer-paper': { mt: '64px',  width: '200px',height: 'calc(100% - 64px)', backgroundColor: '#222a2d '} }}>
           <List>
             {/* Aquí puedes agregar los elementos de tu barra lateral */}
+            {user.roles[0].name === 'admin' && (
+            <>
             <ListItemButton key="Usuarios" component={Link} to="/usuarios">
-                <ListItemText primary="Usuarios" />
-            </ListItemButton>
-            <ListItemButton key="Deudas">
-                <ListItemText primary="Deudas" />
-            </ListItemButton>
-            <ListItemButton key="Pagos">
-                <ListItemText primary="Pagos" />
+              <ListItemIcon style={{ color: '#FFFFFF' }}>
+                <PersonIcon />
+              </ListItemIcon>
+              <ListItemText primary="Usuarios" style={{ color: '#FFFFFF' }}/>
             </ListItemButton>
             <ListItemButton key="Reportes">
-                <ListItemText primary="Reportes" />
+              <ListItemIcon>
+                <ReportIcon style={{ color: '#FFFFFF' }}/>
+              </ListItemIcon>
+              <ListItemText primary="Reportes" style={{ color: '#FFFFFF' }}/>
             </ListItemButton>
+          
             <ListItemButton key="Servicios">
-                <ListItemText primary="Servicios" />
+            <ListItemIcon>
+            <ServicesIcon style={{ color: '#FFFFFF' }}/>
+            </ListItemIcon>
+                <ListItemText primary="Servicios" style={{ color: '#FFFFFF' }}/>
             </ListItemButton>
             <ListItemButton key="Notificaciones" component={Link} to="/Notificaciones">
                 <ListItemText primary="Notificaciones" />
+            <ListItemIcon>
+            <NotificationsIcon style={{ color: '#FFFFFF' }}/>
+            </ListItemIcon>
+                <ListItemText primary="Notificaciones" style={{ color: '#FFFFFF' }}/>
+            </ListItemButton></>
+            )}
+            <ListItemButton key="Deudas">
+            <ListItemIcon>
+              <MoneyOffIcon style={{ color: '#FFFFFF' }}/>
+              </ListItemIcon>
+                <ListItemText primary="Deudas" style={{ color: '#FFFFFF' }}/>
             </ListItemButton>
+            <ListItemButton key="Pagos" component={Link} to="/pagos" >
+            <ListItemIcon>
+            <PaymentIcon style={{ color: '#FFFFFF' }}/>
+            </ListItemIcon>
+                <ListItemText primary="Pagos" style={{ color: '#FFFFFF' }}/>
+            </ListItemButton>
+            
             <ListItemButton key="Apelaciones">
-                <ListItemText primary="Apelaciones" />
+            <ListItemIcon>
+            <AppealIcon style={{ color: '#FFFFFF' }}/>
+            </ListItemIcon>
+                <ListItemText primary="Apelaciones" style={{ color: '#FFFFFF' }}/>
             </ListItemButton>
           </List>
         </Drawer>

@@ -55,6 +55,10 @@ const debtSchema = new mongoose.Schema(
             ref: "DebtStates",
             required: true
         },
+        interestApplied: {
+            type: Boolean,
+            default: false
+        },
     }, {
         versionKey: false,
     });

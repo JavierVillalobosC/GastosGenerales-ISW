@@ -1,4 +1,4 @@
-"user strict"
+"use strict"
 
 const { respondSuccess, respondError } = require("../utils/resHandler");
 const StateService = require("../services/states.service");

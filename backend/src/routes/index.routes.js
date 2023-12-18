@@ -9,7 +9,7 @@ const userRoutes = require("./user.routes.js");
 const authRoutes = require("./auth.routes.js");
 
 const pagoRoutes = require("./pagos.routes.js");
-
+const debstatesRoutes = require("./debstates.routes.js");
 const statesRoutes = require("./states.routes.js");
 const deudaRoutes = require("./deudas.routes.js");
 
@@ -20,7 +20,11 @@ const manualEmailRoutes = require("./manualEmail.routes.js");
 
 const fileRoutes = require("./file.routes.js");
 
+const categoriaRoutes = require("./categorias.routes.js");
+
 const appealRoutes = require("./appeal.routes.js");
+
+const reportRoutes = require("./report.routes.js");
 /** Middleware de autenticación */
 const authenticationMiddleware = require("../middlewares/authentication.middleware.js");
 
@@ -34,8 +38,9 @@ router.use("/auth", authRoutes);
 
 router.use("/pagos", pagoRoutes);
 
+router.use("/categorias", categoriaRoutes);
 router.use("/deudas", deudaRoutes);
-
+router.use("/debstates", debstatesRoutes);
 router.use("/interes", interesRoutes);
 
 router.use("/sendMail", mailerRoutes);
@@ -45,6 +50,8 @@ router.use("/manualEmail", manualEmailRoutes);
 router.use("/file", fileRoutes);
 
 router.use("/appeals", appealRoutes);
+
+router.use("/report", reportRoutes);
 
 router.use("/states", statesRoutes);
 // Exporta el enrutador

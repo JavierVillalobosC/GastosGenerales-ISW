@@ -35,7 +35,7 @@ const paySchema = new mongoose.Schema(
         required: true,
         min: 0
     },
-    valordeuda: {
+    valorcuota: {
         type: Number,
         required: false,
         min: 0
