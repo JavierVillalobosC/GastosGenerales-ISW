@@ -14,16 +14,16 @@ const { eliminarInteres } = require("../services/interes.service.js");
 
 async function createAppeal(appeal) {
     try {
-        const { userId, text, files } = appeal;
+        const { userId, debtId, text, files } = appeal;
 
         const userFound = await User.findById(userId);
         if (!userFound) return [null, 'El usuario no existe'];
 
-        // Verifica si el usuario tiene una deuda con interés aplicado
-        const userDebt = await Debt.findOne({ user: userId, interestApplied: true });
-        if (!userDebt) return [null, 'El usuario no tiene una deuda con interés aplicado'];
+        // Verifica si la deuda específica tiene interés aplicado
+        const debt = await Debt.findOne({ _id: debtId, user: userId, interestApplied: true });
+        if (!debt) return [null, 'La deuda no existe o no tiene interés aplicado'];
 
-        const appealCreated = await Appeal.create({ userId, text, files }); // Guarda los archivos en la base de datos
+        const appealCreated = await Appeal.create({ userId, debtId, text, files }); // Guarda los archivos en la base de datos
         return [appealCreated, null];
     } catch (error) {
         handleError(error, 'appeal.service -> createAppeal');
@@ -59,6 +59,7 @@ async function getAppeal(id) {
     try {
         const appeal = await Appeal.findById(id)
             .populate('userId')
+            .populate('debtId')
             .exec();
 
         if (!appeal) return [null, 'La apelación no existe'];
@@ -128,6 +129,7 @@ async function getAppealsByUser(userId) {
     try {
         const appeals = await Appeal.find({ userId })
             .populate('userId')
+            .populate('debtId')
             .exec();
 
         if (!appeals) return [null, 'El usuario no tiene apelaciones'];
