@@ -361,7 +361,7 @@ async function añadirListaNegra() {
 const cron = require('node-cron');
 
 // Programa una tarea para ejecutarse todos los días a las 00:00
-cron.schedule('17 18 * * *', () => {
+cron.schedule('00 00 * * *', () => {
     añadirListaNegra().catch(console.error);
 });
 
