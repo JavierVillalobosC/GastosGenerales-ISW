@@ -16,6 +16,7 @@ const deudaRoutes = require("./deudas.routes.js");
 const interesRoutes = require("./interes.routes.js");
 
 const mailerRoutes = require("./mailer.routes.js");
+const manualEmailRoutes = require("./manualEmail.routes.js");
 
 const fileRoutes = require("./file.routes.js");
 
@@ -38,6 +39,8 @@ router.use("/deudas", deudaRoutes);
 router.use("/interes", interesRoutes);
 
 router.use("/sendMail", mailerRoutes);
+
+router.use("/manualEmail", manualEmailRoutes);
 
 router.use("/file", fileRoutes);
 

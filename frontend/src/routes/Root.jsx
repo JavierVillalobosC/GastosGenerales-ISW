@@ -66,7 +66,7 @@ function PageRoot() {
             <ListItemButton key="Servicios">
                 <ListItemText primary="Servicios" />
             </ListItemButton>
-            <ListItemButton key="Notificaciones">
+            <ListItemButton key="Notificaciones" component={Link} to="/Notificaciones">
                 <ListItemText primary="Notificaciones" />
             </ListItemButton>
             <ListItemButton key="Apelaciones">
