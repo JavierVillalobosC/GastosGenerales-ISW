@@ -79,7 +79,6 @@ function PageRoot() {
                 <ListItemText primary="Servicios" style={{ color: '#FFFFFF' }}/>
             </ListItemButton>
             <ListItemButton key="Notificaciones" component={Link} to="/Notificaciones">
-                <ListItemText primary="Notificaciones" />
             <ListItemIcon>
             <NotificationsIcon style={{ color: '#FFFFFF' }}/>
             </ListItemIcon>
