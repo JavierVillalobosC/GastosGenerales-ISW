@@ -3,7 +3,15 @@ import { DataGrid } from '@mui/x-data-grid';
 import axios from '../services/root.service';
 import IconButton from '@mui/material/IconButton';
 import EditIcon from '@mui/icons-material/Edit';
+import { AuthProvider, useAuth } from '../context/AuthContext';
 
+function Root() {
+  return (
+    <AuthProvider>
+      <PageRoot />
+    </AuthProvider>
+  );
+}
 const columns = [
    { field: 'id', headerName: '#', flex: 1, valueGetter: (params) => params.value + 1},
     { field: 'username', headerName: 'Usuario', flex: 1 },
@@ -17,48 +25,62 @@ const columns = [
   ];
   
   function Pagos() {
+    const { user } = useAuth();
+  console.log(user);
     const [rows, setRows] = React.useState([]);
-  
-    React.useEffect(() => {
-      axios.get('/pagos')
-        .then((response) => {
-          const payments = response.data.data;
-          console.log(payments);
-          const servicePromises = payments.map(payment => 
-            axios.get(`/categorias/${payment.idService}`)
-          );
-          const statusPromises = payments.map(payment => 
-            axios.get(`/debstates/${payment.status}`)
-          );
-          Promise.all([...servicePromises, ...statusPromises])
-            .then(responses => {
-              const serviceResponses = responses.slice(0, payments.length);
-              const statusResponses = responses.slice(payments.length);
-              const rows = payments.map((payment, index) => {
-                const serviceResponse = serviceResponses[index];
-                const statusResponse = statusResponses[index];
-                const serviceName = serviceResponse.data && serviceResponse.data.data && serviceResponse.data.data.name ? serviceResponse.data.data.name : 'Nombre no disponible';
-                const statusName = statusResponse.data && statusResponse.data.data && statusResponse.data.data.name ? statusResponse.data.data.name : 'Nombre no disponible';
-                return {
-                  id: index,
-                  username: payment.user.username,
-                  amount: payment.total_amount,
-                  valor_cuota: payment.valorcuota || 'No disponible',
-                  date: new Date(payment.date).toLocaleDateString('es-CL'),
-                  paydate: new Date(payment.paydate).toLocaleDateString('es-CL'),
-                  service: serviceName,
-                  status: statusName,
-                  // add more fields as needed
-                };
-              });
     
-              setRows(rows);
+    React.useEffect(() => {
+      axios.get(`/usuarios/${user.email}`)
+        .then((response) => {
+          const userId = response.data.data._id;
+          axios.get('/pagos')
+            .then((response) => {
+              const allPayments = response.data.data;
+              console.log('Todos los pagos: ', allPayments); 
+              const currentUserPayments = user.roles[0].name === 'admin' ? allPayments : allPayments.filter(payment => {
+                console.log('ID de usuario del pago: ', payment.user._id); // Agregado para depuración
+                console.log('ID de usuario actual: ', userId); // Agregado para depuración
+                return payment.user._id === userId;
+              });
+              console.log('Pagos del usuario actual: ', currentUserPayments);
+              const servicePromises = currentUserPayments.map(payment => 
+                axios.get(`/categorias/${payment.idService}`)
+              );
+              const statusPromises = currentUserPayments.map(payment => 
+                axios.get(`/debstates/${payment.status}`)
+              );
+              Promise.all([...servicePromises, ...statusPromises])
+                .then(responses => {
+                  const serviceData = responses.slice(0, currentUserPayments.length);
+                  const statusData = responses.slice(currentUserPayments.length);
+                  const newRows = currentUserPayments.map((payment, index) => {
+                    const serviceResponse = serviceData[index];
+                    const statusResponse = statusData[index];
+                    const serviceName = serviceResponse.data && serviceResponse.data.data && serviceResponse.data.data.name ? serviceResponse.data.data.name : 'Nombre no disponible';
+                    const statusName = statusResponse.data && statusResponse.data.data && statusResponse.data.data.name ? statusResponse.data.data.name : 'Nombre no disponible';
+                    return {
+                      id: index,
+                      username: payment.user.username,
+                      amount: payment.total_amount,
+                      valor_cuota: payment.valorcuota || 'No disponible',
+                      date: new Date(payment.date).toLocaleDateString('es-CL'),
+                      paydate: new Date(payment.paydate).toLocaleDateString('es-CL'),
+                      service: serviceName,
+                      status: statusName,
+                    };
+                  });
+  
+                  setRows(newRows);
+                });
+            })
+            .catch((error) => {
+              console.error('Hubo un error al obtener los datos de los pagos: ', error);
             });
         })
         .catch((error) => {
-          console.error('Hubo un error al obtener los datos de los pagos: ', error);
+          console.error('Hubo un error al obtener los datos del usuario: ', error);
         });
-    }, []);
+    }, [user]);
   
     return (
       <div style={{ backgroundColor: 'white', 

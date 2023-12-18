@@ -11,11 +11,18 @@ import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import { useForm } from "react-hook-form";
 import AddIcon from '@mui/icons-material/Add';
-
+function Root() {
+  return (
+    <AuthProvider>
+      <PageRoot />
+    </AuthProvider>
+  );
+}
 
 
 
 function Usuarios() {
+  
   const [openForm, setOpenForm] = React.useState(false);
   const [rows, setRows] = React.useState([]);
   const [open, setOpen] = React.useState(false);

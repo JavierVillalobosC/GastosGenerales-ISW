@@ -128,7 +128,16 @@ async function updateUser(id, user) {
     handleError(error, "user.service -> updateUser");
   }
 }
+ async function getPagoByEmail(email) {
+  try {
+    const pago = await Pago.findOne({ email: email });
+    if (!pago) return [null, "El pago no existe"];
+    return [pago, null];
+  } catch (error) {
+    handleError(error, "user.service -> getPagoByEmail");
+  }
 
+}
 /**
  * Elimina un usuario por su id de la base de datos
  * @param {string} Id del usuario
@@ -148,4 +157,5 @@ module.exports = {
   getUserById,
   updateUser,
   deleteUser,
+  getPagoByEmail
 };

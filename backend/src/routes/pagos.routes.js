@@ -13,7 +13,7 @@ const router = express.Router();
 router.use(authenticationMiddleware);
 
 router.get("/", pagoController.getPagos);
-router.post("/", authorizationMiddleware.isAdmin, pagoController.createPago);
+router.post("/",  pagoController.createPago);
 router.get("/:id", pagoController.getPagoById);
 router.get("/user/:id", pagoController.getPagoByUser);
 router.put("/:id", authorizationMiddleware.isAdmin, pagoController.updatePago);

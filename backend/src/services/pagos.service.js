@@ -26,6 +26,7 @@ async function getPagos() {
     }
 }
 
+
 /**
  * 
  * @param {Object} pago Objeto de pago

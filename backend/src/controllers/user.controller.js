@@ -23,6 +23,22 @@ async function getUsers(req, res) {
     respondError(req, res, 400, error.message);
   }
 }
+async function getUserByEmail(req, res) {
+  try {
+    const { params } = req;
+    const { error: paramsError } = userIdSchema.validate(params);
+    if (paramsError) return respondError(req, res, 400, paramsError.message);
+
+    const [user, errorUser] = await UserService.getUserByEmail(params.email);
+
+    if (errorUser) return respondError(req, res, 404, errorUser);
+
+    respondSuccess(req, res, 200, user);
+  } catch (error) {
+    handleError(error, "user.controller -> getUserById");
+    respondError(req, res, 500, "No se pudo obtener el usuario");
+  }
+}
 
 /**
  * Crea un nuevo usuario
@@ -129,4 +145,5 @@ module.exports = {
   getUserById,
   updateUser,
   deleteUser,
+  getUserByEmail
 };
