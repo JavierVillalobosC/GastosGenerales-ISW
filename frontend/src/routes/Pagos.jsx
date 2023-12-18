@@ -5,14 +5,14 @@ import IconButton from '@mui/material/IconButton';
 import EditIcon from '@mui/icons-material/Edit';
 
 const columns = [
-    { field: 'id', headerName: 'ID', width: 70 },
-    { field: 'username', headerName: 'Usuario', width: 130 },
-    { field: 'amount', headerName: 'Monto Pagado (CLP)', width: 150, valueFormatter: (params) => `$${params.value}` },
-    { field: 'valor_cuota', headerName: 'Valor Cuota (CLP)', width: 150, valueFormatter: (params) => `$${params.value}` },
-    { field: 'date', headerName: 'Fecha', width: 110 },
-    { field: 'service', headerName: 'Servicio', width: 130 },
-    { field: 'status', headerName: 'Estado', width: 130 },
-    { field: 'paydate', headerName: 'Fecha limite', width: 130 },
+   { field: 'id', headerName: '#', flex: 1, valueGetter: (params) => params.value + 1},
+    { field: 'username', headerName: 'Usuario', flex: 1 },
+    { field: 'amount', headerName: 'Monto Pagado (CLP)', flex: 1, valueFormatter: (params) => `$${params.value}` },
+    { field: 'valor_cuota', headerName: 'Valor Cuota (CLP)', flex: 1, valueFormatter: (params) => `$${params.value}` },
+    { field: 'date', headerName: 'Fecha', flex: 1 },
+    { field: 'service', headerName: 'Servicio', flex: 1 },
+    { field: 'status', headerName: 'Estado', flex: 1 },
+    { field: 'paydate', headerName: 'Fecha limite', flex: 1 },
     // add more columns as needed
   ];
   

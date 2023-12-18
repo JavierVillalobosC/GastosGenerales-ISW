@@ -49,9 +49,7 @@ function PageRoot() {
           <Typography variant="subtitle1" component="div" sx={{ flexGrow: 1 }}>
             Estas logeado como: {user.email}
           </Typography>
-          <IconButton color="inherit">
-            <AccountCircle />
-          </IconButton>
+          
           <Button color="inherit" onClick={handleLogout}>Cerrar sesion</Button>
         </Toolbar>
       </AppBar>
