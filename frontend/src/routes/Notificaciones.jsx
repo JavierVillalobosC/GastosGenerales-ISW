@@ -11,6 +11,8 @@ import DialogActions from '@mui/material/DialogActions';
 import Button from '@mui/material/Button';
 import { TextareaAutosize as BaseTextareaAutosize } from '@mui/base/TextareaAutosize';
 import { styled } from '@mui/system';
+import Alert from '@mui/material/Alert';
+import AlertTitle from '@mui/material/AlertTitle';
 
 const blue = {
   100: '#DAECFF',
@@ -68,7 +70,12 @@ const TextareaAutosizeStyled = styled(BaseTextareaAutosize)(
 function Notificaciones() {
   const [rows, setRows] = React.useState([]);
   const [open, setOpen] = React.useState(false);
+  const [successAlert, setSuccessAlert] = React.useState(false);
+  const [errorAlert, setErrorAlert] = React.useState(false);
+  const [subjectError, setSubjectError] = React.useState(false);
+  const [contentError, setContentError] = React.useState(false);
   const [emailContent, setEmailContent] = React.useState('');
+  const [emailSubject, setEmailSubject] = React.useState('');
   const [userEmail, setUserEmail] = React.useState('');
   const [username, setUsername] = React.useState('');
 
@@ -76,32 +83,40 @@ function Notificaciones() {
     setOpen(true);
     setUserEmail(email);
     setUsername(username);
-    setEmailContent(''); // Restablecer el contenido del correo electrónico
+    setEmailContent('');
+    setEmailSubject('');
   };
 
   const handleClose = () => {
     setOpen(false);
   };
 
-  const handleSend = (emailContent, userEmail) => {
-    axios.post('/manualEmail', { emailContent, userEmail })
+  const handleSend = (emailContent, emailSubject, userEmail) => {
+    // Verifica si el asunto y el contenido del correo no están vacíos
+    if (!emailContent.trim()) {
+      setContentError(true);
+      handleClose(); // Cierra el cuadro de texto
+      return;
+    }
+  
+    if (!emailSubject.trim()) {
+      setSubjectError(true);
+      handleClose(); // Cierra el cuadro de texto
+      return;
+    }
+  
+    axios.post('/manualEmail', { emailContent, emailSubject, userEmail })
       .then(response => {
         console.log(response.data);
-        // Aquí puedes manejar la respuesta del servidor
-        if (response.data.message) {
-          alert(`Respuesta del servidor: ${response.data.message}`);
-        } else {
-          alert('Correo enviado exitosamente');
-        }
+        // Muestra el alerta de éxito
+        setSuccessAlert(true);
+        handleClose();
       })
       .catch(error => {
         console.error(error);
-        // Aquí puedes manejar cualquier error que ocurra durante la solicitud
-        if (error?.response?.data?.message) {
-          alert(`Error: ${error.response.data.message}`);
-        } else {
-          alert('Ocurrió un error al enviar el correo');
-        }
+        // Muestra el alerta de error
+        setErrorAlert(true);
+        handleClose(); // Cierra el cuadro de texto
       });
   }
 
@@ -137,31 +152,73 @@ function Notificaciones() {
   }, []);
 
   return (
+        <div style={{ backgroundColor: 'white',
+    height: '100vh',
+    width: '100%',
+ }}>
     <div>
-      <DataGrid rows={rows} columns={columns} />
+      {/* Muestra los alertas según el estado */}
+      {successAlert && (
+        <Alert severity="success" onClose={() => setSuccessAlert(false)}>
+          <AlertTitle>Success</AlertTitle>
+          Correo enviado exitosamente
+        </Alert>
+      )}
+      {errorAlert && (
+        <Alert severity="error" onClose={() => setErrorAlert(false)}>
+          <AlertTitle>Error</AlertTitle>
+          Ocurrió un error al enviar el correo
+        </Alert>
+      )}
+      {subjectError && (
+        <Alert severity="error" onClose={() => setSubjectError(false)}>
+          <AlertTitle>Error</AlertTitle>
+          El asunto del correo es obligatorio
+        </Alert>
+      )}
+      {contentError && (
+        <Alert severity="error" onClose={() => setContentError(false)}>
+          <AlertTitle>Error</AlertTitle>
+          El contenido del correo es obligatorio
+        </Alert>
+      )}
+  
+      <DataGrid autoHeight rows={rows} columns={columns} />
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>Enviar correo a {username}</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Escribe el contenido del correo electrónico:
+            Escribe el asunto del correo electrónico:
           </DialogContentText>
-          <div style={{ minHeight: '200px' }}>
           <TextareaAutosizeStyled
             autoFocus
             margin="dense"
-            aria-label="Contenido del correo"
-            placeholder="Contenido del correo"
+            aria-label="Asunto del correo"
+            placeholder="Asunto del correo"
             fullWidth
-            value={emailContent}
-            onChange={(event) => setEmailContent(event.target.value)}
+            value={emailSubject}
+            onChange={(event) => setEmailSubject(event.target.value)}
           />
-        </div>
+          <DialogContentText style={{ marginTop: '20px' }}>
+            Escribe el contenido del correo electrónico:
+          </DialogContentText>
+          <div style={{ minHeight: '200px' }}>
+            <TextareaAutosizeStyled
+              margin="dense"
+              aria-label="Contenido del correo"
+              placeholder="Contenido del correo"
+              fullWidth
+              value={emailContent}
+              onChange={(event) => setEmailContent(event.target.value)}
+            />
+          </div>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cancelar</Button>
-          <Button onClick={() => handleSend(emailContent, userEmail)}>Enviar</Button>
+          <Button onClick={() => handleSend(emailContent, emailSubject, userEmail)}>Enviar</Button>
         </DialogActions>
       </Dialog>
+    </div>
     </div>
   );
 }

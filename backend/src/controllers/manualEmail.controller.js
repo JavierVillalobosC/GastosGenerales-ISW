@@ -3,7 +3,7 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 const manualEmail = (req, res) => {
-    const { emailContent, userEmail } = req.body
+    const { emailContent, userEmail, emailSubject} = req.body
     const token = process.env.PW // Contraseña
     const mail = 'victor.herrera1901@alumnos.ubiobio.cl'
     if (!token || token === undefined || token === null){
@@ -22,8 +22,22 @@ const manualEmail = (req, res) => {
     const mailOptions = {
         from: `Encargado`,
         to: userEmail,
-        subject: 'Recordatorio de pago',
-        text: `${emailContent}`
+        subject: emailSubject,
+        html: `
+        <html>
+        <body>
+            <header>
+                <h1>${emailSubject}</h1>
+            </header>
+            <main>
+                <p>Estimad@ Cliente,</p>
+                <p>${emailContent}</p>
+                <p>Para realizar el pago, visita nuestro <a href="https://intranet.ubiobio.cl">sitio web</a> o acude presencialemente a la municipalidad.</p>
+                <img src="https://i.imgur.com/dUmvZnw.png" alt="Ejemplo de imagen" width="666" height="256">
+            </main>
+        </body>
+        </html>
+        `
     }
 
     transporter.sendMail(mailOptions, (err, info) => {
