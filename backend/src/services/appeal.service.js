@@ -1,6 +1,7 @@
 // src/services/appeal.service.js
 const Appeal = require('../models/appeal.model');
 const User = require('../models/user.model');
+const Debt = require("../models/deuda.model.js");
 const { handleError } = require('../utils/errorHandler');
 const { eliminarInteres } = require("../services/interes.service.js");
 
@@ -12,15 +13,15 @@ const { eliminarInteres } = require("../services/interes.service.js");
  */ 
 
 async function createAppeal(appeal) {
-    console.log(appeal);
-    console.log(appeal.userId);
-    console.log(appeal.text);
-    console.log(appeal.files);
     try {
         const { userId, text, files } = appeal;
 
         const userFound = await User.findById(userId);
         if (!userFound) return [null, 'El usuario no existe'];
+
+        // Verifica si el usuario tiene una deuda con interés aplicado
+        const userDebt = await Debt.findOne({ user: userId, interestApplied: true });
+        if (!userDebt) return [null, 'El usuario no tiene una deuda con interés aplicado'];
 
         const appealCreated = await Appeal.create({ userId, text, files }); // Guarda los archivos en la base de datos
         return [appealCreated, null];
@@ -29,7 +30,6 @@ async function createAppeal(appeal) {
         return [null, 'No se creo la apelación'];
     }
 }
-
 /**
  *  
  *  
@@ -145,8 +145,15 @@ async function updateAppealStatus(id, status) {
 
         // Si el estado es 'approved', eliminar el interés
         if (status === 'approved') {
-            const interesEliminado = await eliminarInteres(appeal.userId);
-            if (interesEliminado) {
+            const userDebt = await Debt.findOne({ user: appeal.userId, interestApplied: true });
+            if (userDebt) {
+                // Restar el monto del interés de la deuda
+                userDebt.amount -= userDebt.amount * 0.15; // Asume que el interés es del 15%
+                // Establecer interestApplied en false
+                userDebt.interestApplied = false;
+                // Guardar la deuda actualizada
+                await userDebt.save();
+
                 console.log(`Se eliminó el interés para el usuario con id ${appeal.userId}`);
             } else {
                 console.log(`No se eliminó ningún interés para el usuario con id ${appeal.userId}`);
