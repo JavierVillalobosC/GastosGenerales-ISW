@@ -9,7 +9,7 @@ const userRoutes = require("./user.routes.js");
 const authRoutes = require("./auth.routes.js");
 
 const pagoRoutes = require("./pagos.routes.js");
-
+const debstatesRoutes = require("./debstates.routes.js");
 const statesRoutes = require("./states.routes.js");
 const deudaRoutes = require("./deudas.routes.js");
 
@@ -37,7 +37,7 @@ router.use("/pagos", pagoRoutes);
 
 router.use("/categorias", categoriaRoutes);
 router.use("/deudas", deudaRoutes);
-
+router.use("/debstates", debstatesRoutes);
 router.use("/interes", interesRoutes);
 
 router.use("/sendMail", mailerRoutes);

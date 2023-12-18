@@ -11,7 +11,7 @@ const columns = [
     { field: 'valor_cuota', headerName: 'Valor Cuota (CLP)', width: 150, valueFormatter: (params) => `$${params.value}` },
     { field: 'date', headerName: 'Fecha', width: 110 },
     { field: 'service', headerName: 'Servicio', width: 130 },
-    { field: 'estado', headerName: 'Estado', width: 130 },
+    { field: 'status', headerName: 'Estado', width: 130 },
     { field: 'paydate', headerName: 'Fecha limite', width: 130 },
     // add more columns as needed
   ];
@@ -23,23 +23,31 @@ const columns = [
       axios.get('/pagos')
         .then((response) => {
           const payments = response.data.data;
+          console.log(payments);
           const servicePromises = payments.map(payment => 
             axios.get(`/categorias/${payment.idService}`)
           );
-    
-          Promise.all(servicePromises)
-            .then(serviceResponses => {
+          const statusPromises = payments.map(payment => 
+            axios.get(`/debstates/${payment.status}`)
+          );
+          Promise.all([...servicePromises, ...statusPromises])
+            .then(responses => {
+              const serviceResponses = responses.slice(0, payments.length);
+              const statusResponses = responses.slice(payments.length);
               const rows = payments.map((payment, index) => {
                 const serviceResponse = serviceResponses[index];
+                const statusResponse = statusResponses[index];
                 const serviceName = serviceResponse.data && serviceResponse.data.data && serviceResponse.data.data.name ? serviceResponse.data.data.name : 'Nombre no disponible';
+                const statusName = statusResponse.data && statusResponse.data.data && statusResponse.data.data.name ? statusResponse.data.data.name : 'Nombre no disponible';
                 return {
                   id: index,
                   username: payment.user.username,
                   amount: payment.total_amount,
-                  valor_cuota: payment.valor_cuota,
+                  valor_cuota: payment.valorcuota || 'No disponible',
                   date: new Date(payment.date).toLocaleDateString('es-CL'),
                   paydate: new Date(payment.paydate).toLocaleDateString('es-CL'),
                   service: serviceName,
+                  status: statusName,
                   // add more fields as needed
                 };
               });
@@ -64,7 +72,6 @@ const columns = [
           columns={columns}
           pageSize={5}
           rowsPerPageOptions={[5, 10]}
-          checkboxSelection
         />
       </div>
     );

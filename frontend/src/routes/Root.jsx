@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { logout } from '../services/auth.service';
+
 import { AuthProvider, useAuth } from '../context/AuthContext';
 import { ListItemButton, ListItemIcon, AppBar, Toolbar, CssBaseline, IconButton, Typography, Button, Drawer, List, ListItem, ListItemText, Box } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -32,6 +33,7 @@ function PageRoot() {
   };
 
   const { user } = useAuth();
+  console.log(user);
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -57,12 +59,34 @@ function PageRoot() {
         <Drawer variant="permanent" open sx={{ '& .MuiDrawer-paper': { mt: '64px',  width: '200px',height: 'calc(100% - 64px)', backgroundColor: '#222a2d '} }}>
           <List>
             {/* Aquí puedes agregar los elementos de tu barra lateral */}
+            {user.roles[0].name === 'admin' && (
+            <>
             <ListItemButton key="Usuarios" component={Link} to="/usuarios">
-            <ListItemIcon style={{ color: '#FFFFFF' }}> 
-              <PersonIcon />
+              <ListItemIcon style={{ color: '#FFFFFF' }}>
+                <PersonIcon />
               </ListItemIcon>
-                <ListItemText primary="Usuarios" style={{ color: '#FFFFFF' }}/>
+              <ListItemText primary="Usuarios" style={{ color: '#FFFFFF' }}/>
             </ListItemButton>
+            <ListItemButton key="Reportes">
+              <ListItemIcon>
+                <ReportIcon style={{ color: '#FFFFFF' }}/>
+              </ListItemIcon>
+              <ListItemText primary="Reportes" style={{ color: '#FFFFFF' }}/>
+            </ListItemButton>
+          
+            <ListItemButton key="Servicios">
+            <ListItemIcon>
+            <ServicesIcon style={{ color: '#FFFFFF' }}/>
+            </ListItemIcon>
+                <ListItemText primary="Servicios" style={{ color: '#FFFFFF' }}/>
+            </ListItemButton>
+            <ListItemButton key="Notificaciones">
+            <ListItemIcon>
+            <NotificationsIcon style={{ color: '#FFFFFF' }}/>
+            </ListItemIcon>
+                <ListItemText primary="Notificaciones" style={{ color: '#FFFFFF' }}/>
+            </ListItemButton></>
+            )}
             <ListItemButton key="Deudas">
             <ListItemIcon>
               <MoneyOffIcon style={{ color: '#FFFFFF' }}/>
@@ -75,24 +99,7 @@ function PageRoot() {
             </ListItemIcon>
                 <ListItemText primary="Pagos" style={{ color: '#FFFFFF' }}/>
             </ListItemButton>
-            <ListItemButton key="Reportes">
-            <ListItemIcon>
-            <ReportIcon style={{ color: '#FFFFFF' }}/>
-            </ListItemIcon>
-                <ListItemText primary="Reportes" style={{ color: '#FFFFFF' }}/>
-            </ListItemButton>
-            <ListItemButton key="Servicios">
-            <ListItemIcon>
-            <ServicesIcon style={{ color: '#FFFFFF' }}/>
-            </ListItemIcon>
-                <ListItemText primary="Servicios" style={{ color: '#FFFFFF' }}/>
-            </ListItemButton>
-            <ListItemButton key="Notificaciones">
-            <ListItemIcon>
-            <NotificationsIcon style={{ color: '#FFFFFF' }}/>
-            </ListItemIcon>
-                <ListItemText primary="Notificaciones" style={{ color: '#FFFFFF' }}/>
-            </ListItemButton>
+            
             <ListItemButton key="Apelaciones">
             <ListItemIcon>
             <AppealIcon style={{ color: '#FFFFFF' }}/>

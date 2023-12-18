@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { DataGrid } from '@mui/x-data-grid';
+import { DataGrid, GridToolbarContainer, GridToolbarExport, GridToolbarColumnsButton, GridToolbarFilterButton, GridToolbarDensitySelector } from '@mui/x-data-grid';
+import { Pagination } from '@mui/material';
 import axios from '../services/root.service';
 import IconButton from '@mui/material/IconButton';
 import EditIcon from '@mui/icons-material/Edit';
@@ -31,6 +32,7 @@ function Usuarios() {
   React.useEffect(() => {
     axios.get('/users')
       .then((response) => {
+        console.log(response);
         const users = response.data.data;
         Promise.all(users.map(user => 
           axios.get(`/states/${user.state[0]}`)
@@ -66,7 +68,7 @@ function Usuarios() {
         columns={columns}
         pageSize={5}
         rowsPerPageOptions={[5, 10]}
-        
+        pagination={true}
       />
     </div>
   );

@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -16,8 +17,15 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     if (!isAuthenticated) {
       navigate('/auth');
+    } else {
+      // Navega a diferentes rutas dependiendo del rol del usuario
+      if (user.roles === 'admin') {
+        navigate('/admin');
+      } else if (user.roles === 'user') {
+        navigate('/user');
+      }
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, navigate, user]);
 
   return (
     <AuthContext.Provider value={{ isAuthenticated, user }}>
