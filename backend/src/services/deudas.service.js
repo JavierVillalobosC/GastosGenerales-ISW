@@ -246,78 +246,40 @@ const checkOverdueDebts = async function() {
     }
 };
 
-// Función para actualizar el estado del usuario
-async function updateUserState(userId) {
-    // Busca al usuario por su ID
-    const user = await User.findById(userId);
-  
-    // Busca los estados "deudor" y "al día"
-    const debtorState = await State.findOne({ name: 'deudor' });
-    const upToDateState = await State.findOne({ name: 'al dia' });
-
-    // Variable para rastrear si el estado del usuario ha cambiado
-    let stateChanged = false;
-  
-    // Si el usuario no tiene deuda o si el plazo de pago del usuario no ha vencido, cambia su estado a "al día"
-if (user.debt === 0 || user.paymentDueDate >= new Date()) {
-    //let justification = '';
-    if (user.debt === 0) {
-        //justification = 'El usuario no tiene deuda.';
-    } else if (user.paymentDueDate >= new Date()) {
-        //justification = 'El plazo de pago del usuario aún no ha vencido.';
-    }
-    if (user.state !== upToDateState._id) {
-        //console.log(`[!] El estado del usuario ${userId} ha sido actualizado a 'al día'. ${justification}`);
-    }
-    user.state = upToDateState._id;
-    stateChanged = true;
-}
-    // Si el plazo de pago del usuario ha vencido y su deuda es mayor a 0, cambia su estado a "deudor"
-if (user.paymentDueDate < new Date() && user.debt > 0) {
-    if (user.state !== debtorState._id) {
-        //console.log(`El estado del usuario ${userId} ha sido actualizado a 'deudor'. Deuda: ${user.debt}`);
-        user.state = debtorState._id;
-        stateChanged = true;
-    }
-}
-
-    // Si el estado del usuario no ha cambiado, imprime un mensaje
-/* if (!stateChanged) {
-    let justification = '';
-    if (user.debt === 0) {
-        justification = '[v] El usuario no tiene deudas.\n';
-    } else if (user.paymentDueDate >= new Date()) {
-        justification = '[v] La deuda del usuario aún no ha vencido.\n';
-    } else {
-        justification = `> El plazo de pago de la deuda ha vencido.\n> El usuario tiene deudas por pagar.\n> Deuda: ${user.debt}`;
-    }
-
-    // Si el plazo de pago del usuario ha vencido y tiene deudas por pagar, imprime un mensaje
-    if (user.paymentDueDate < new Date() && user.debt > 0) {
-        console.log(`[!] El plazo de pago del usuario ${userId} ha vencido y tiene deudas por pagar. Deuda: ${user.debt}`);
-    }
-
-    console.log(`[!] Se revisó el usuario ${userId}, pero su estado no necesitó ser modificado.\n${justification}`);
-}
-
-// Imprime el estado del usuario
-const userState = await State.findById(user.state);
-console.log(`> El estado del usuario ${userId} es: ${userState.name}`); */
-
-    // Guarda el usuario actualizado
-    await user.save();
-}
-
-// Función para actualizar el estado de todos los usuarios
 async function updateAllUserStates() {
     // Obtiene todos los usuarios
     const users = await User.find();
 
+    // Busca los ObjectId de los estados "al dia" y "deudor"
+    const alDiaState = await State.findOne({ name: 'al dia' });
+    const deudorState = await State.findOne({ name: 'deudor' });
+
     // Actualiza el estado de cada usuario
     for (let user of users) {
-        await updateUserState(user._id);
+        const debt = await Debt.findOne({ user: user._id });
+        // Si no se encuentra ninguna deuda para el usuario o la deuda es 0, establece el estado como "al dia"
+        if (!debt || debt.actualamount === 0) {
+            user.state = alDiaState._id;
+            await user.save();
+            continue;
+        }
+
+        // Si la deuda es mayor que 0 y la fecha final es posterior a la fecha actual, establece el estado como "al dia"
+        if (debt.actualamount > 0 && debt.finaldate > Date.now()) {
+            user.state = alDiaState._id;
+            await user.save();
+            continue;
+        }
+
+        // Si la deuda es mayor que 0 y la fecha final es anterior a la fecha actual, establece el estado como "deudor"
+        if (debt.actualamount > 0 && debt.finaldate < Date.now()) {
+            user.state = deudorState._id;
+            await user.save();
+            continue;
+        }
     }
 }
+
 
 async function addToBlacklist(user) {
     // Verifica si el usuario ya está en la lista negra
@@ -358,6 +320,17 @@ async function añadirListaNegra() {
     }
 }
 
+async function getDeudasByUserId(userId) {
+    try {
+        const deudas = await Debt.find({ user: userId }).exec();
+        return [deudas, null];
+    } catch (error) {
+        console.error("Error al obtener las deudas del usuario:", error);
+        return [null, error.message];
+    }
+}
+
+
 const cron = require('node-cron');
 
 // Programa una tarea para ejecutarse todos los días a las 00:00
@@ -380,7 +353,7 @@ module.exports = {
     updateDeuda,
     deleteDeuda,
     removeFromBlacklist,
-
+    getDeudasByUserId
 };
 
 

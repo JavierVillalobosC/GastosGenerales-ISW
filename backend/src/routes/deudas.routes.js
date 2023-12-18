@@ -18,6 +18,6 @@ router.get("/:id", deudaController.getDeudaById);
 router.put('/removeFromBlacklist', deudaController.removeFromBlacklist);
 router.put("/:id", authorizationMiddleware.isAdmin, deudaController.updateDeuda);
 router.delete("/:id", authorizationMiddleware.isAdmin, deudaController.deleteDeuda);
-//router.put('/removeUserFromBlacklistIfDebtPaid/:id', authorizationMiddleware.isAdmin, deudaController.removeUserFromBlacklistIfDebtPaid);
+router.get("/user/:id", deudaController.getDeudasByUserId);
 
 module.exports = router;

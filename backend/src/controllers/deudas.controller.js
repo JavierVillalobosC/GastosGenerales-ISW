@@ -124,11 +124,22 @@ async function removeFromBlacklist(req, res) {
     }
   };
   
+  async function getDeudasByUserId(req, res) {
+    const { userId } = req.params;
+    const [deudas, error] = await DebtService.getDeudasByUserId(userId);
+    if (error) {
+        res.status(500).json({ error });
+    } else {
+        res.json(deudas);
+    }
+};
+
   module.exports = {
       getDeudas,
       createDeuda,
       getDeudaById,
       updateDeuda,
       deleteDeuda,
-      removeFromBlacklist
+      removeFromBlacklist,
+      getDeudasByUserId
   };
