@@ -2,6 +2,7 @@ const fileModel = require ('../models/file.model')
 const fs = require('fs');
 const path = require('path');
 const Appeal = require('../models/appeal.model');
+const { upload } = require('../middlewares/handleMulter.middleware');
 
 const uploadNewFile = async (req, res) => {
 
@@ -57,14 +58,25 @@ const getFiles = async (req, res) => {
     }
 };
 
+
 const getSpecificFile = async (req, res) => {
     const { id } = req.params;
     try {
         const file = await fileModel.findById(id);
+        console.log('Documento de archivo:', file);
         if (!file) {
             return res.status(404).send({ message: "Archivo no existe" });
         }
-        return res.download('./' + file.url);
+        if (!file.url) {
+            return res.status(500).send({ message: "Información de archivo incompleta" });
+        }
+        const filePath = path.resolve('.', file.url);
+        console.log('Ruta del archivo:', filePath);
+
+        // Establece el encabezado 'Content-Disposition' con el nombre del archivo
+        res.setHeader('Content-Disposition', 'attachment; filename=' + path.basename(filePath));
+
+        return res.download(filePath);
     } catch (err) {
         console.error(err);
         return res.status(500).send({ message: "Error al obtener el archivo" });

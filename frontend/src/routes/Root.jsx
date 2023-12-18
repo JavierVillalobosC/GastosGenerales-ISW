@@ -98,7 +98,7 @@ function PageRoot() {
                 <ListItemText primary="Pagos" style={{ color: '#FFFFFF' }}/>
             </ListItemButton>
             
-            <ListItemButton key="Apelaciones">
+            <ListItemButton key="Apelaciones" component={Link} to="/apelaciones">
             <ListItemIcon>
             <AppealIcon style={{ color: '#FFFFFF' }}/>
             </ListItemIcon>

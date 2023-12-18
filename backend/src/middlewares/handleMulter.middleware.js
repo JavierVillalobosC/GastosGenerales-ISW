@@ -1,6 +1,7 @@
 const express = require('express');
 const multer = require('multer');
 const fs = require('fs');
+const path = require('path');
 
 
 const app = express();
@@ -9,7 +10,9 @@ app.use(express.json());
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        const route = './upload/' + req.params.appealId; // Usa el ID de la apelación para la ruta de destino
+        const route = path.resolve(__dirname, './upload/', String(req.params.appealId));
+        const absolutePath = path.resolve(route);
+        console.log('Guardando archivo en: ', absolutePath);
         if (!fs.existsSync(route)) {
             fs.mkdirSync(route, { recursive: true })
         }

@@ -28,6 +28,6 @@ const appealSchema = new mongoose.Schema({
          enum: ['pending', 'approved', 'rejected'], 
          default: 'pending' 
         },
-});
+}, { timestamps: true });
 
 module.exports = mongoose.model('Appeal', appealSchema);

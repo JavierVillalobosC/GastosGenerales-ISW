@@ -12,7 +12,7 @@ const verifyJWT = require('../middlewares/authentication.middleware');
 
 const router = express.Router()
 
-router.post("/:archivo/", upload.array('archivo', 10), verifyJWT, fileSize, fileController.uploadNewFile, (error, req, res, next) => {
+router.post("/:archivo/", upload.array('archivo', 10), fileSize, fileController.uploadNewFile, (error, req, res, next) => {
     if (error instanceof multer.MulterError) {
         // A Multer error occurred when uploading.
         console.error(error);

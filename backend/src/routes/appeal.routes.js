@@ -15,7 +15,7 @@ const router = express.Router();
 router.use(authenticationMiddleware);
 
 router.post('/', appealController.createAppeal);
-router.get('/', /* authorizationMiddleware.isAdmin, */ appealController.getAllAppeals);
+router.get('/', appealController.getAllAppeals);
 router.get('/user/:userId', authenticationMiddleware, appealController.getAppealsByUser); // Cada usuario puede ver sus propias apelaciones
 router.get('/:id', appealController.getAppeal);
 router.put('/:id', appealController.updateAppeal);
