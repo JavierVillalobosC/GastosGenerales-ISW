@@ -7,6 +7,7 @@ import ErrorPage from './routes/ErrorPage.jsx';
 import Login from './routes/Login.jsx';
 import Usuarios from './routes/usuarios.jsx';
 import Pagos from './routes/Pagos.jsx';
+import Deudas from './routes/Deudas.jsx';
 import Appeal from './routes/Appeal.jsx';
 import Notificaciones from './routes/Notificaciones.jsx'
 
@@ -27,6 +28,10 @@ const router = createBrowserRouter([
       {
         path: '/pagos', // Ruta para la vista de Pagos
         element: <Pagos />, // Componente Pagos
+      },
+      {
+        path: '/deudas', // Ruta para la vista de Deudas
+        element: <Deudas />, // Componente Deudas
       },
       {
         path: '/apelaciones', // Ruta para la vista de Apelaciones
