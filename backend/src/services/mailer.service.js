@@ -78,7 +78,7 @@ const sendMail = async (days) => {
                         <li>Fecha de vencimiento: ${formattedDate}</li>
                     </ul>
                     <p>Para realizar el pago, visita nuestro <a href="https://intranet.ubiobio.cl">sitio web</a> o acude presencialemente a la municipalidad.</p>
-                    <img src="https://i.imgur.com/dUmvZnw.png" alt="Ejemplo de imagen" width="666" height="256">
+                    <img src="https://i.imgur.com/dUmvZnw.png" alt="Ejemplo de imagen" width="333" height="128">
                 </main>
             </body>
             </html>

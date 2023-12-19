@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { DataGrid } from '@mui/x-data-grid';
+import Grid from '@mui/material/Grid';
 import axios from '../services/root.service';
 import IconButton from '@mui/material/IconButton';
 import EmailIcon from '@mui/icons-material/Email';
@@ -121,22 +122,30 @@ function Notificaciones() {
   }
 
   const columns = [
-    { field: 'id', headerName: 'ID', flex: 1 },
-    { field: 'username', headerName: 'Usuario', flex: 2 },
-    { field: 'email', headerName: 'Email', flex: 3 },
+    { field: 'id', headerName: 'ID', width: 70, headerAlign: 'center' },
+    { field: 'username', headerName: 'Nombre de Usuario', flex: 2, headerAlign: 'center' },
+    { field: 'email', headerName: 'Correo Electrónico', flex: 3, headerAlign: 'center' },
     {
       field: 'edit',
       headerName: 'Enviar Correo',
       flex: 1,
+      headerAlign: 'center',
       renderCell: (params) => (
-        <IconButton
-          color="primary"
-          onClick={() => handleClickOpen(params.row.email, params.row.username)}
+        <Grid
+          container
+          direction="row"
+          justifyContent="center"
+          alignItems="center"
         >
-          <EmailIcon />
-        </IconButton>
+          <IconButton
+            color="primary"
+            onClick={() => handleClickOpen(params.row.email, params.row.username)}
+          >
+            <EmailIcon />
+          </IconButton>
+        </Grid>
       ),
-    }
+    },
   ];
 
   React.useEffect(() => {
@@ -182,8 +191,15 @@ function Notificaciones() {
           El contenido del correo es obligatorio
         </Alert>
       )}
-  
-      <DataGrid autoHeight rows={rows} columns={columns} />
+      <DataGrid
+      autoHeight
+      rows={rows}
+      columns={columns}
+      slotProps={{
+        cell: { style: { borderRight: '1px solid #ddd' } },
+        columnHeader: { style: { borderRight: '1px solid #ddd' } },
+        }}
+        />
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>Enviar correo a {username}</DialogTitle>
         <DialogContent>
