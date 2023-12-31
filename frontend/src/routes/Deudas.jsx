@@ -28,12 +28,13 @@ function Deudas() {
     const [services, setServices] = React.useState([]);
     const [debtStates, setDebtStates] = React.useState([]);
     const { register, handleSubmit } = useForm();
-    
+
 
     const handleEditClick = (row) => {
+        console.log("row", row);
         const initialdate = row.initialdate && !isNaN(new Date(row.initialdate)) ? new Date(row.initialdate).toISOString().split('T')[0] : '';
         const finaldate = row.finaldate && !isNaN(new Date(row.finaldate)) ? new Date(row.finaldate).toISOString().split('T')[0] : '';
-    
+
         setEditingRow({
             ...row,
             _id: row._id,
@@ -46,12 +47,13 @@ function Deudas() {
     const handleOpenForm = () => {
         setOpenForm(true);
       };
-    
+
       const handleCloseForm = () => {
         setOpenForm(false);
       };
-    
-      const onSubmitcreate = (data) => {
+
+      const onSubmitcreate = () => {
+        const data = {...editingRow}
         axios.post('/deudas', data)
           .then((response) => {
             console.log(response);
@@ -78,7 +80,7 @@ function Deudas() {
 
     const handleUpdate = () => {
 
-        if (!editingRow._id) {
+        if (!editingRow.id) {
             console.error('No se ha seleccionado ninguna fila para editar');
             return;
         }
@@ -89,8 +91,8 @@ function Deudas() {
             serviceId: services.find(service => service.name === editingRow.service).id,
             estadoId: debtStates.find(debtState => debtState.name === editingRow.estado).id,
         };
-    
-        axios.put(`/deudas/${editingRow._id}`, updatedRow)
+
+        axios.put(`/deudas/${editingRow.id}`, updatedRow)
         .then((response) => {
             console.log(response); // Imprime la respuesta de la API
 
@@ -125,8 +127,8 @@ function Deudas() {
             headerName: 'Editar',
             flex: 1,
             renderCell: (params) => (
-              <IconButton 
-                color="primary" 
+              <IconButton
+                color="primary"
                 onClick={() => handleEditClick(params.row)}
               >
                 <EditIcon />
@@ -137,7 +139,7 @@ function Deudas() {
 
     React.useEffect(() => {
 
-        axios.get('/users') 
+        axios.get('/users')
             .then((response) => {
                 const usersData = response.data.data;
                 setUsers(usersData);
@@ -168,13 +170,13 @@ function Deudas() {
         axios.get('/deudas')
             .then((response) => {
                 const debts = response.data.data;
-                const servicePromises = debts.map(debt => 
+                const servicePromises = debts.map(debt =>
                     axios.get(`/categorias/${debt.idService}`)
                 );
-                const statePromises = debts.map(debt => 
+                const statePromises = debts.map(debt =>
                     axios.get(`/debstates/${debt.estado}`)
                 );
-    
+
                 Promise.all([...servicePromises, ...statePromises])
                     .then(responses => {
                         const serviceResponses = responses.slice(0, debts.length);
@@ -200,7 +202,7 @@ function Deudas() {
                                 // add more fields as needed
                             };
                         });
-    
+
                         setRows(rows);
                     });
             })
@@ -209,12 +211,14 @@ function Deudas() {
             });
     }, []);
 
+    console.log("editingRow", editingRow);
+
     return (
-        <div style={{ backgroundColor: 'white', 
-        height: '100vh', 
-        width: '100%', 
-        display: 'flex', 
-        justifyContent: 'center', 
+        <div style={{ backgroundColor: 'white',
+        height: '100vh',
+        width: '100%',
+        display: 'flex',
+        justifyContent: 'center',
         alignItems: 'center'  }}>
             <IconButton color="primary" onClick={handleOpenForm}>
       <AddIcon />
