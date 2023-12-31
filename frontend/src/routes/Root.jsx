@@ -26,14 +26,17 @@ function Root() {
 
 function PageRoot() {
   const navigate = useNavigate();
-  
+
   const handleLogout = () => {
     logout();
     navigate('/auth');
   };
 
   const { user } = useAuth();
-  console.log(user);
+
+  if(!user?.roles?.[0].name){
+    return(<div>Loading...</div>)
+  }
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -49,7 +52,7 @@ function PageRoot() {
           <Typography variant="subtitle1" component="div" sx={{ flexGrow: 1 }}>
             Estas logeado como: {user.email}
           </Typography>
-          
+
           <Button color="inherit" onClick={handleLogout}>Cerrar sesion</Button>
         </Toolbar>
       </AppBar>
@@ -71,7 +74,7 @@ function PageRoot() {
               </ListItemIcon>
               <ListItemText primary="Reportes" style={{ color: '#FFFFFF' }}/>
             </ListItemButton>
-          
+
             <ListItemButton key="Servicios">
             <ListItemIcon>
             <ServicesIcon style={{ color: '#FFFFFF' }}/>
@@ -97,7 +100,7 @@ function PageRoot() {
             </ListItemIcon>
                 <ListItemText primary="Pagos" style={{ color: '#FFFFFF' }}/>
             </ListItemButton>
-            
+
             <ListItemButton key="Apelaciones" component={Link} to="/apelaciones">
             <ListItemIcon>
             <AppealIcon style={{ color: '#FFFFFF' }}/>
