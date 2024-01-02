@@ -12,7 +12,7 @@ const pagoRoutes = require("./pagos.routes.js");
 const debstatesRoutes = require("./debstates.routes.js");
 const statesRoutes = require("./states.routes.js");
 const deudaRoutes = require("./deudas.routes.js");
-
+const roleRoutes = require("./roles.routes.js");
 const interesRoutes = require("./interes.routes.js");
 
 const mailerRoutes = require("./mailer.routes.js");
@@ -46,12 +46,14 @@ router.use("/interes", interesRoutes);
 router.use("/sendMail", mailerRoutes);
 
 router.use("/manualEmail", manualEmailRoutes);
-
+router.use("/roles", roleRoutes);
 router.use("/file", fileRoutes);
 
 router.use("/appeals", appealRoutes);
 
 router.use("/report", reportRoutes);
+
+router.use("/states", statesRoutes);
 
 router.use("/states", statesRoutes);
 // Exporta el enrutador

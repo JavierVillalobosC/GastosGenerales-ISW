@@ -32,7 +32,7 @@ async function createUser(user) {
   try {
     const { username, email, password, rut, roles, state, debt } = user;
 
-    const userFound = await User.findOne({ email: user.email });
+    const userFound = await User.findOne({ username: username });
     if (userFound) return [null, "El usuario ya existe"];
 
     const rolesFound = await Role.find({ name: { $in: roles } });
@@ -128,16 +128,24 @@ async function updateUser(id, user) {
     handleError(error, "user.service -> updateUser");
   }
 }
- async function getPagoByEmail(email) {
-  try {
-    const pago = await Pago.findOne({ email: email });
-    if (!pago) return [null, "El pago no existe"];
-    return [pago, null];
-  } catch (error) {
-    handleError(error, "user.service -> getPagoByEmail");
-  }
 
+ async function getUserByEmail(email) {
+  try {
+    const user = await User.findOne({ email: email })
+      .select("-password")
+      .populate("roles")
+      .exec();
+
+    if (!user) return [null, "El usuario no existe"];
+
+    return [user, null];
+  }
+  catch (error) {
+    handleError(error, "user.service -> getUserByEmail");
+  }
 }
+
+
 /**
  * Elimina un usuario por su id de la base de datos
  * @param {string} Id del usuario
@@ -157,5 +165,5 @@ module.exports = {
   getUserById,
   updateUser,
   deleteUser,
-  getPagoByEmail
+  getUserByEmail
 };

@@ -25,13 +25,13 @@ async function getUsers(req, res) {
 }
 async function getUserByEmail(req, res) {
   try {
-    const { params } = req;
-    const { error: paramsError } = userIdSchema.validate(params);
-    if (paramsError) return respondError(req, res, 400, paramsError.message);
+    const { email } = req.params;
 
-    const [user, errorUser] = await UserService.getUserByEmail(params.email);
+    const [user, errorUser] = await UserService.getUserByEmail(email);
 
     if (errorUser) return respondError(req, res, 404, errorUser);
+
+    
 
     respondSuccess(req, res, 200, user);
   } catch (error) {

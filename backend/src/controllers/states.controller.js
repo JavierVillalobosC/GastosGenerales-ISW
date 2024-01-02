@@ -32,7 +32,23 @@ async function getStatesById(req, res) {
     }
 }
 
+async function getStateByName(req, res) {
+    try {
+        const { params } = req;
+        const [state, errorState] = await StateService.getStateByName(params.name);
+        if (errorState) return respondError(req, res, 404, errorState);
+
+        respondSuccess(req, res, 200, state);
+    } catch (error) {
+        handleError(error, "states.controller -> getStateByName");
+        respondError(req, res, 400, error.message);
+    }
+}
+
+
 module.exports = {
     getStates,
-    getStatesById
+    getStatesById,
+    getStateByName
+
 };

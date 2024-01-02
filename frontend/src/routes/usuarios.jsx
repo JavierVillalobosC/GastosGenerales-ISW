@@ -11,10 +11,12 @@ import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import { useForm } from "react-hook-form";
 import AddIcon from '@mui/icons-material/Add';
-function Root() {
+import Autocomplete from '@mui/material/Autocomplete';
+
+function Users() {
   return (
     <AuthProvider>
-      <PageRoot />
+      <Usuarios />
     </AuthProvider>
   );
 }
@@ -29,6 +31,7 @@ function Usuarios() {
   const [editingUser, setEditingUser] = React.useState(null);
   const { register, handleSubmit } = useForm();
 
+  
   const handleEditClick = (user) => {
     
     if (user && user._id) {
@@ -46,8 +49,19 @@ function Usuarios() {
   const handleCloseForm = () => {
     setOpenForm(false);
   };
-  const onSubmitcreate = (data) => {
-    axios.post('/users', data)
+  const onSubmitcreate = async (data) => {
+    //console.log('data:', data);
+    // Buscar el rol y el estado por su nombre
+  const role = await axios.get(`/roles/name/${data.roles}`);
+  const state = await axios.get(`/states/name/${data.state}`);
+  console.log('role:', role);
+  console.log('state:', state);
+  // Reemplazar los nombres por los ObjectIds
+  data.roles = [role.data.data.name];
+  data.state = [state.data.data.name];
+  data.debt = Number(data.debt);
+    console.log('data:', data);
+  axios.post('/users', data)
       .then((response) => {
         console.log(response);
         setOpenForm(false);
@@ -143,11 +157,11 @@ function Usuarios() {
         <DialogTitle>Crear Usuario</DialogTitle>
         <form onSubmit={handleSubmit(onSubmitcreate)}>
           <DialogContent>
-            <TextField label="Usuario" {...register("username")} />
+            <TextField label="Nombre" {...register("username")} />
             <TextField label="RUT" {...register("rut")} />
             <TextField label="Email" {...register("email")} />
             <TextField label="Contraseña" type="password" {...register("password")} />
-            <TextField label="Roles" {...register("roles")} />
+            {<TextField label="Roles" {...register("roles")} /> }
             <TextField label="Estado" {...register("state")} />
             <TextField label="Deuda Total (CLP)" {...register("debt")} />
           </DialogContent>

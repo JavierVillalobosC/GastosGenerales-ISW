@@ -12,5 +12,5 @@
  router.use(authenticationMiddleware);
  router.get("/", statesController.getStates);
  router.get("/:id", statesController.getStatesById);
-
+ router.get("/name/:name", statesController.getStateByName);
  module.exports = router;

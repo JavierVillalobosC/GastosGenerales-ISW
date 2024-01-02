@@ -27,7 +27,23 @@ async function getStatesById(id) {
     }
 }
 
+
+async function getStateByName(name) {
+    try {
+        const state = await State.findOne({ name: name }).exec();
+
+        if (!state) return [null, "No hay estados"];
+
+        return [state, null];
+    } catch (error) {
+        handleError(error, "states.service -> getStateByName");
+    }
+
+};
+
+
 module.exports = {
     getStates,
-    getStatesById
+    getStatesById,
+    getStateByName
 };

@@ -8,11 +8,14 @@ import { AuthProvider, useAuth } from '../context/AuthContext';
 function Root() {
   return (
     <AuthProvider>
-      <PageRoot />
+      <Pagos />
     </AuthProvider>
   );
 }
-const columns = [
+
+  
+  function Pagos() {
+    const columns = [
    { field: 'id', headerName: '#', flex: 1, valueGetter: (params) => params.value + 1},
     { field: 'username', headerName: 'Usuario', flex: 1 },
     { field: 'amount', headerName: 'Monto Pagado (CLP)', flex: 1, valueFormatter: (params) => `$${params.value}` },
@@ -23,14 +26,12 @@ const columns = [
     { field: 'paydate', headerName: 'Fecha limite', flex: 1 },
     // add more columns as needed
   ];
-  
-  function Pagos() {
     const { user } = useAuth();
   console.log(user);
     const [rows, setRows] = React.useState([]);
     
     React.useEffect(() => {
-      axios.get(`/usuarios/${user.email}`)
+      axios.get(`/users/email/${user.email}`)
         .then((response) => {
           const userId = response.data.data._id;
           axios.get('/pagos')
@@ -99,4 +100,4 @@ const columns = [
     );
   }
   
-  export default Pagos;
+  export default Root;
