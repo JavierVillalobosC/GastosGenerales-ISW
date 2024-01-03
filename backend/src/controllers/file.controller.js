@@ -67,16 +67,18 @@ const getSpecificFile = async (req, res) => {
         if (!file) {
             return res.status(404).send({ message: "Archivo no existe" });
         }
-        if (!file.url) {
+        if (!file.url || !file.mimeType) {
             return res.status(500).send({ message: "Información de archivo incompleta" });
         }
-        const filePath = path.resolve('.', file.url);
+        const filePath = path.resolve('./upload/', file.url); // Agrega la ubicación de la carpeta './upload/' a la ruta del archivo
         console.log('Ruta del archivo:', filePath);
 
         // Establece el encabezado 'Content-Disposition' con el nombre del archivo
         res.setHeader('Content-Disposition', 'attachment; filename=' + path.basename(filePath));
+        // Establece el encabezado 'Content-Type' con el tipo de archivo
+        res.setHeader('Content-Type', file.mimeType);
 
-        return res.download(filePath);
+        return res.download(filePath, file.name);
     } catch (err) {
         console.error(err);
         return res.status(500).send({ message: "Error al obtener el archivo" });

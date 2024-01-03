@@ -10,6 +10,9 @@ import Pagos from './routes/Pagos.jsx';
 import Deudas from './routes/Deudas.jsx';
 import Appeal from './routes/Appeal.jsx';
 import Notificaciones from './routes/Notificaciones.jsx'
+import DebtorAppeal from './routes/DebtorAppeal.jsx';
+import Report from './routes/Report.jsx';
+
 
 const router = createBrowserRouter([
   {
@@ -36,6 +39,18 @@ const router = createBrowserRouter([
       {
         path: '/apelaciones', // Ruta para la vista de Apelaciones
         element: <Appeal />, // Componente Appeal
+      },
+      {
+        path: '/apelacionescrear', // Ruta sin el parámetro userId
+        element: <DebtorAppeal />, // Componente DebtorAppeal
+      },
+      {
+        path: '/apelacionescrear/:userId', // Ruta con el parámetro userId
+        element: <DebtorAppeal />, // Componente DebtorAppeal
+      },
+      {
+        path: '/reportes', // Ruta para la vista de Reportes
+        element: <Report />, // Componente Report
       },
       {
         path: '/Notificaciones', // Ruta para la vista de Notificaciones

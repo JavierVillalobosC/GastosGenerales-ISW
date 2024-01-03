@@ -106,10 +106,23 @@ async function actualizarUsuariosBlacklisted(req, res) {
     }
 }
 
-
+async function listarDeudasConIntereses(req, res) {
+    const userId = req.params.userId;
+    try {
+        const deudasConIntereses = await Debt.find({ user: userId, interestApplied: true }).exec();
+        if (deudasConIntereses.length === 0) {
+            return res.status(404).json({ message: `El usuario con id ${userId} no tiene deudas con intereses aplicados.` });
+        }
+        return res.json(deudasConIntereses);
+    } catch (error) {
+        console.error('Error al listar las deudas con intereses:', error);
+        return res.status(500).json({ message: 'Error al listar las deudas con intereses' });
+    }
+}
 
 module.exports = {
     aplicarInteres,
     obtenerUsuariosEnListaNegra,
-    actualizarUsuariosBlacklisted
+    actualizarUsuariosBlacklisted,
+    listarDeudasConIntereses
 };

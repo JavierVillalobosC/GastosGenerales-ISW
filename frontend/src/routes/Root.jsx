@@ -15,6 +15,9 @@ import ReportIcon from '@mui/icons-material/Report';
 import ServicesIcon from '@mui/icons-material/RoomService';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import AppealIcon from '@mui/icons-material/ReportProblem';
+import ReportProblemIcon from '@mui/icons-material/ReportProblem';
+import AssessmentIcon from '@mui/icons-material/Assessment';
+
 function Root() {
   return (
     <AuthProvider>
@@ -100,13 +103,26 @@ function PageRoot() {
             </ListItemIcon>
                 <ListItemText primary="Pagos" style={{ color: '#FFFFFF' }}/>
             </ListItemButton>
-
+      
             <ListItemButton key="Apelaciones" component={Link} to="/apelaciones">
-            <ListItemIcon>
-            <AppealIcon style={{ color: '#FFFFFF' }}/>
-            </ListItemIcon>
+                <ListItemIcon>
+                  <ReportProblemIcon style={{ color: '#FFFFFF' }}/>
+                </ListItemIcon>
                 <ListItemText primary="Apelaciones" style={{ color: '#FFFFFF' }}/>
-            </ListItemButton>
+              </ListItemButton>
+            <ListItemButton key="Crear Apelación" component={Link} to="/apelacionescrear">
+                <ListItemIcon>
+                  <ReportProblemIcon style={{ color: '#FFFFFF' }}/>
+                </ListItemIcon>
+                <ListItemText primary="Crear Apelación" style={{ color: '#FFFFFF' }}/>
+              </ListItemButton>
+              <ListItemButton key="Reportes" component={Link} to="/reportes">
+            <ListItemIcon>
+              <AssessmentIcon style={{ color: '#FFFFFF' }}/>
+            </ListItemIcon>
+            <ListItemText primary="Reportes" style={{ color: '#FFFFFF' }}/>
+          </ListItemButton>
+                    
           </List>
         </Drawer>
       </Box>

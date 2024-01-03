@@ -10,13 +10,13 @@ app.use(express.json());
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        const route = path.resolve(__dirname, './upload/', String(req.params.appealId));
-        const absolutePath = path.resolve(route);
+        const relativePath = './upload/' + String(req.params.appealId);
+        const absolutePath = path.resolve(__dirname, relativePath);
         console.log('Guardando archivo en: ', absolutePath);
-        if (!fs.existsSync(route)) {
-            fs.mkdirSync(route, { recursive: true })
+        if (!fs.existsSync(absolutePath)) {
+            fs.mkdirSync(absolutePath, { recursive: true })
         }
-        cb(null, route)
+        cb(null, absolutePath)
     },
     filename: function (req, file, cb) {
         let fecha = new Date();
@@ -24,26 +24,26 @@ const storage = multer.diskStorage({
         const nameFile = fecha + ' ' + file.originalname
         cb(null, nameFile)
     }
-})
+}) 
 
 const upload = multer({
     storage: storage,
     fileFilter: function (req, file, cb) {
-        if (file.mimetype === 'image/png') {
-            console.log("El archivo es un png")
+        const allowedMimes = ['image/png', 'image/jpg', 'image/jpeg', 'application/pdf'];
+        if (allowedMimes.includes(file.mimetype)) {
+            cb(null, true);
         } else {
-            console.log("El archivo tiene otra extension")
+            cb(new Error('Tipo de archivo no válido. Sólo se permiten archivos png, jpg, jpeg y pdf.'));
         }
-        cb(null, true)
     },
     limits: {
-        fileSize: 1024 * 1024 * 5
+        fileSize: 1024 * 1024 * 10
     }
 });
 
 const fileSize = (req, res, next) => {
     req.files.forEach(file => {
-        if (file.size > 1024 * 1024 * 5) { // 5MB
+        if (file.size > 1024 * 1024 * 10) { // 10MB
             return res.status(400).send({ message: "El tamaño del archivo es demasiado grande" });
         }
     });
