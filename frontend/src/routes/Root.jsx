@@ -72,13 +72,6 @@ function PageRoot() {
               </ListItemIcon>
               <ListItemText primary="Usuarios" style={{ color: '#FFFFFF' }}/>
             </ListItemButton>
-            <ListItemButton key="Reportes">
-              <ListItemIcon>
-                <ReportIcon style={{ color: '#FFFFFF' }}/>
-              </ListItemIcon>
-              <ListItemText primary="Reportes" style={{ color: '#FFFFFF' }}/>
-            </ListItemButton>
-
             <ListItemButton key="Servicios">
             <ListItemIcon>
             <ServicesIcon style={{ color: '#FFFFFF' }}/>
@@ -90,7 +83,15 @@ function PageRoot() {
             <NotificationsIcon style={{ color: '#FFFFFF' }}/>
             </ListItemIcon>
                 <ListItemText primary="Notificaciones" style={{ color: '#FFFFFF' }}/>
-            </ListItemButton></>
+            </ListItemButton>
+            <ListItemButton key="Apelaciones" component={Link} to="/apelaciones">
+                <ListItemIcon>
+                  <ReportProblemIcon style={{ color: '#FFFFFF' }}/>
+                </ListItemIcon>
+                <ListItemText primary="Apelaciones" style={{ color: '#FFFFFF' }}/>
+              </ListItemButton>
+            </>
+            
             )}
             <ListItemButton key="Deudas" component={Link} to="/deudas">
             <ListItemIcon>
@@ -105,12 +106,7 @@ function PageRoot() {
                 <ListItemText primary="Pagos" style={{ color: '#FFFFFF' }}/>
             </ListItemButton>
       
-            <ListItemButton key="Apelaciones" component={Link} to="/apelaciones">
-                <ListItemIcon>
-                  <ReportProblemIcon style={{ color: '#FFFFFF' }}/>
-                </ListItemIcon>
-                <ListItemText primary="Apelaciones" style={{ color: '#FFFFFF' }}/>
-              </ListItemButton>
+            
             <ListItemButton key="Crear Apelación" component={Link} to="/apelacionescrear">
                 <ListItemIcon>
                   <ReportProblemIcon style={{ color: '#FFFFFF' }}/>

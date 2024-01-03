@@ -22,6 +22,11 @@ function Deudas() {
     const [text, setText] = React.useState('');
     const [files, setFiles] = React.useState([]);
     const [debtId, setDebtId] = React.useState(null);
+    const [isAppealButtonDisabled, setAppealButtonDisabled] = React.useState(false);
+    const [appealedDebts, setAppealedDebts] = React.useState(() => {
+        const savedAppealedDebts = localStorage.getItem('appealedDebts');
+        return savedAppealedDebts ? JSON.parse(savedAppealedDebts) : [];
+    });
     const [alert, setAlert] = React.useState({ open: false, message: '', severity: '' });
     const handleClose = (event, reason) => {
         if (reason === 'clickaway') {
@@ -54,6 +59,7 @@ function Deudas() {
 
     function handleSubmit(event) {
         event.preventDefault();
+        setAppealButtonDisabled(true);
 
         console.log('userId:', userId);
         console.log('selectedDebt:', selectedDebt);
@@ -74,7 +80,8 @@ function Deudas() {
             const extension = file.name.split('.').pop().toLowerCase();
             return typeof file === 'object' && allowedExtensions.includes(extension);
         })) {
-            console.error('Todos los archivos deben ser de tipo png, jpg, jpeg o pdf');
+            console.error('Los archivos deben ser de tipo png, jpg, jpeg o pdf');
+            setAlert({ open: true, message: 'Los archivos deben ser de tipo png, jpg, jpeg o pdf', severity: 'error' });
             return;
         }
     
@@ -128,6 +135,12 @@ function Deudas() {
             // Limpiar el formulario después de enviarlo
             setText('');
             setFiles([]);
+            setAppealButtonDisabled(false);
+            setAppealedDebts(prev => {
+                const newAppealedDebts = [...prev, selectedDebt.debtId];
+                localStorage.setItem('appealedDebts', JSON.stringify(newAppealedDebts));
+                return newAppealedDebts;
+            });
             setOpen(false); // Cerrar el modal
         })
         .catch(error => {
@@ -168,12 +181,15 @@ function Deudas() {
                         };
                     });
                     setRows(newRows);
+    
+                    // Aquí es donde almacenamos las deudas apeladas en localStorage
+                    localStorage.setItem('appealedDebts', JSON.stringify(appealedDebts));
                 });
             })
             .catch((error) => {
                 console.error('Hubo un error al obtener los datos de las deudas: ', error);
             });
-    }, []);
+    }, [appealedDebts]); // Asegúrate de incluir appealedDebts en la lista de dependencias del useEffect
     
     const columns = [
         //{ field: 'id', headerName: 'ID', width: 70 },
@@ -184,14 +200,14 @@ function Deudas() {
         { field: 'finaldate', headerName: 'Fecha Final', width: 130 },
         { field: 'service', headerName: 'Servicio', width: 130 },
         //{ field: 'estado', headerName: 'Estado', width: 130 },
-        { field: 'interestApplied', headerName: 'Interés Aplicado', width: 150 },
+        //{ field: 'interestApplied', headerName: 'Interés Aplicado', width: 150 },
         //{ field: 'blacklisted', headerName: 'En lista negra', width: 130 },
         {
             field: 'appeal',
             headerName: 'Apelar',
             width: 130,
             renderCell: (params) => (
-                <IconButton color="primary" onClick={() => handleAppealButtonClick(params)}>
+                <IconButton color="primary" onClick={() => handleAppealButtonClick(params)} disabled={appealedDebts.includes(params.row.id)}>
                     <DescriptionIcon />
                 </IconButton>
             ),
@@ -245,7 +261,7 @@ function Deudas() {
                             type="submit"
                             variant="contained"
                             color="primary"
-                            disabled={!selectedDebt}
+                            disabled={!selectedDebt || isAppealButtonDisabled} // Aquí se usa el estado isAppealButtonDisabled
                         >
                             Enviar apelación
                         </Button>

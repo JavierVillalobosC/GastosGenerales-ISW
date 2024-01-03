@@ -36,7 +36,12 @@ async function createAppeal(appeal) {
             return [null, 'La deuda no existe o no tiene interés aplicado'];
         }
 
-        const appealCreated = await Appeal.create({ userId, debtId, text, files }); // Guarda los archivos en la base de datos
+        const appealCreated = await Appeal.create({ userId, debtId, text, files });
+
+        // Actualiza el campo hasAppeal de la deuda
+        debt.hasAppeal = true;
+        await debt.save();
+
         return [appealCreated, null];
     } catch (error) {
         handleError(error, 'appeal.service -> createAppeal');

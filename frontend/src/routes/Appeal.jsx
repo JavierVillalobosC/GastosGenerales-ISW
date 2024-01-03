@@ -12,6 +12,7 @@ import ListItemText from '@mui/material/ListItemText';
 import Button from '@mui/material/Button';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
+import { css, Global } from '@emotion/react';
 
 async function downloadFile(fileId) {
   console.log('Downloading file with id:', fileId);
@@ -84,8 +85,17 @@ function Appeal() {
       const columns = [
         { field: 'id', headerName: 'ID', width: 70 },
   { field: 'username', headerName: 'Usuario', width: 130 },
-  { field: 'email', headerName: 'Email', width: 160 },
-  { field: 'appealText', headerName: 'Texto de Apelación', flex: 1},
+  { field: 'email', headerName: 'Email', flex: 1 },
+  {
+    field: 'appealText',
+    headerName: 'Texto de Apelación',
+    flex: 1,
+    renderCell: (params) => (
+      <div style={{ whiteSpace: 'normal', wordWrap: 'break-word' }}>
+        {params.value}
+      </div>
+    ),
+  },
   { field: 'appealStatus', headerName: 'Estado de Apelación', width: 150 },
   { field: 'createdAt', headerName: 'Fecha', flex: 1 },
   {
@@ -164,13 +174,20 @@ function Appeal() {
       display: 'flex', 
       justifyContent: 'center', 
       alignItems: 'center'  }}>
-        <DataGrid
-          rows={rows}
-          columns={columns}
-          pageSize={5}
-          rowsPerPageOptions={[5]}
-          //checkboxSelection
-        />
+      <Global
+        styles={css`
+          .wrap-text {
+            white-space: normal;
+          }
+        `}
+      />
+      <DataGrid
+        rows={rows}
+        columns={columns}
+        pageSize={5}
+        rowsPerPageOptions={[5]}
+        //checkboxSelection
+      />
       </div>
     );
   }
