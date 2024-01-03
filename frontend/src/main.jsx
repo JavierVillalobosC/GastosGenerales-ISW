@@ -9,6 +9,7 @@ import Usuarios from './routes/usuarios.jsx';
 import Pagos from './routes/Pagos.jsx';
 import Deudas from './routes/Deudas.jsx';
 import Appeal from './routes/Appeal.jsx';
+import Blacklist from './routes/Blacklist.jsx';
 import Notificaciones from './routes/Notificaciones.jsx'
 
 const router = createBrowserRouter([
@@ -40,6 +41,10 @@ const router = createBrowserRouter([
       {
         path: '/Notificaciones', // Ruta para la vista de Notificaciones
         element: <Notificaciones />, // Componente Notificaciones
+      },
+      {
+        path: '/blacklist', // Ruta para la vista de Blacklist
+        element: <Blacklist />, // Componente Blacklist
       },
     ],
   },

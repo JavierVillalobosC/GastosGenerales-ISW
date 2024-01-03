@@ -16,8 +16,18 @@ import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
 import AddIcon from '@mui/icons-material/Add';
 import { useForm } from 'react-hook-form';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { useAuth } from '../context/AuthContext';
 
-
+/* function Root() {
+    return (
+      <AuthProvider>
+        <Pagos />
+      </AuthProvider>
+    );
+  }
+ */
 
 function Deudas() {
     const [openForm, setOpenForm] = React.useState(false);
@@ -28,6 +38,7 @@ function Deudas() {
     const [services, setServices] = React.useState([]);
     const [debtStates, setDebtStates] = React.useState([]);
     const { register, handleSubmit } = useForm();
+    const { user } = useAuth();
 
 
     const handleEditClick = (row) => {
@@ -43,6 +54,25 @@ function Deudas() {
         });
         setOpen(true);
     };
+
+    const handleDeleteDebt = (id) => {
+        axios.put(`/deudas/${editingRow.id}`, updatedRow)
+        .then((response) => {
+            console.log(response); // Imprime la respuesta de la API
+
+            // Actualizar la lista de deudas después de la actualización
+            axios.get('/deudas')
+                .then((response) => {
+                    setRows(response.data);
+                })
+                .catch((error) => {
+                    console.error('Hubo un error al obtener las deudas: ', error);
+                });
+        })
+        .catch((error) => {
+            console.error('Hubo un error al actualizar la deuda: ', error);
+        });
+      };
 
     const handleOpenForm = () => {
         setOpenForm(true);
@@ -68,7 +98,7 @@ function Deudas() {
       const handleAddInterest = () => {
         // Aquí puedes hacer una llamada a la API para agregar intereses a las deudas de los usuarios
         // Por ejemplo:
-        axios.put('/interes/')
+        axios.post('/interes/')
             .then((response) => {
                 console.log(response);
                 // Aquí puedes actualizar tus datos de deudas (rows) si es necesario
@@ -110,32 +140,48 @@ function Deudas() {
         });
 };
 
-      const columns = [
-        { field: 'id', headerName: 'ID', width: 70 },
-        { field: 'username', headerName: 'Usuario', width: 130 },
-        { field: 'amount', headerName: 'Monto Deuda (CLP)', width: 150, valueFormatter: (params) => `$${params.value}` },
-        { field: 'valor_cuota', headerName: 'Valor Cuota (CLP)', width: 150, valueFormatter: (params) => `$${params.value}` },
-        { field: 'initialdate', headerName: 'Fecha Inicio', width: 130, valueFormatter: (params) => new Date(params.value).toLocaleDateString('es-CL') },
-        { field: 'finaldate', headerName: 'Fecha Final', width: 130, valueFormatter: (params) => new Date(params.value).toLocaleDateString('es-CL') },
-        { field: 'service', headerName: 'Servicio', width: 130 },
-        { field: 'estado', headerName: 'Estado', width: 130 },
-        { field: 'interestApplied', headerName: 'Interés Aplicado', width: 150 },
-        { field: 'blacklisted', headerName: 'En lista negra', width: 130 },
-        // add more columns as needed
+const columns = [
+    { field: 'id', headerName: 'ID', width: 70 },
+    { field: 'username', headerName: 'Usuario', width: 130 },
+    { field: 'amount', headerName: 'Monto Deuda (CLP)', width: 150, valueFormatter: (params) => `$${Math.round(params.value).toLocaleString('es-CL')}` },    { field: 'initialdate', headerName: 'Fecha Inicio', width: 130, valueFormatter: (params) => new Date(params.value).toLocaleDateString('es-CL') },
+    { field: 'finaldate', headerName: 'Fecha Final', width: 130, valueFormatter: (params) => new Date(params.value).toLocaleDateString('es-CL') },
+    { field: 'service', headerName: 'Servicio', width: 130 },
+    { field: 'estado', headerName: 'Estado', width: 130 },
+    { field: 'interestApplied', headerName: 'Interés Aplicado', width: 150 },
+    { field: 'blacklisted', headerName: 'En lista negra', width: 130 },
+    // add more columns as needed
+];
+
+if (user.roles[0].name === 'admin') {
+    columns.push(
         {
             field: 'edit',
             headerName: 'Editar',
             flex: 1,
             renderCell: (params) => (
-              <IconButton
-                color="primary"
-                onClick={() => handleEditClick(params.row)}
-              >
-                <EditIcon />
-              </IconButton>
+                <IconButton
+                    color="primary"
+                    onClick={() => handleEditClick(params.row)}
+                >
+                    <EditIcon />
+                </IconButton>
             ),
-          },
-    ];
+        },
+        {
+            field: 'delete',
+            headerName: 'Borrar',
+            width: 150,
+            renderCell: (params) => (
+                <IconButton
+                    color="secondary"
+                    onClick={() => handleDeleteDebt(params.row.id)}
+                >
+                    <DeleteIcon />
+                </IconButton>
+            ),
+        }
+    );
+}
 
     React.useEffect(() => {
 
@@ -166,22 +212,25 @@ function Deudas() {
                 console.error('Hubo un error al obtener los datos de los estados de deuda: ', error);
             });
 
-
-        axios.get('/deudas')
+            axios.get(`/users/email/${user.email}`)
             .then((response) => {
-                const debts = response.data.data;
-                const servicePromises = debts.map(debt =>
+              const userId = response.data.data._id;
+              axios.get('/deudas')
+                .then((response) => {
+                  const debts = response.data.data;
+                  const currentUserDebts = user.roles[0].name === 'admin' ? debts : debts.filter(debt => debt.user && debt.user._id === userId);
+                  const servicePromises = currentUserDebts.map(debt =>
                     axios.get(`/categorias/${debt.idService}`)
-                );
-                const statePromises = debts.map(debt =>
+                  );
+                  const statePromises = currentUserDebts.map(debt =>
                     axios.get(`/debstates/${debt.estado}`)
-                );
+                  );
 
                 Promise.all([...servicePromises, ...statePromises])
                     .then(responses => {
-                        const serviceResponses = responses.slice(0, debts.length);
-                        const stateResponses = responses.slice(debts.length);
-                        const rows = debts.map((debt, index) => {
+                        const serviceResponses = responses.slice(0, currentUserDebts.length);
+                        const stateResponses = responses.slice(currentUserDebts.length);
+                        const rows = currentUserDebts.map((debt, index) => {
                             const serviceResponse = serviceResponses[index];
                             const stateResponse = stateResponses[index];
                             const serviceName = serviceResponse.data && serviceResponse.data.data && serviceResponse.data.data.name ? serviceResponse.data.data.name : 'Nombre no disponible';
@@ -209,27 +258,27 @@ function Deudas() {
             .catch((error) => {
                 console.error('Hubo un error al obtener los datos de las deudas: ', error);
             });
-    }, []);
+        })
+        .catch((error) => {
+          console.error('Hubo un error al obtener los datos del usuario: ', error);    
+        });
+        }, []);
 
     console.log("editingRow", editingRow);
 
     return (
+        <>
         <div style={{ backgroundColor: 'white',
         height: '100vh',
         width: '100%',
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center'  }}>
+            {user.roles[0].name === 'admin' && (
             <IconButton color="primary" onClick={handleOpenForm}>
-      <AddIcon />
-    </IconButton>
-            <DataGrid
-                rows={rows}
-                columns={columns}
-                pageSize={5}
-                rowsPerPageOptions={[5, 10]}
-                checkboxSelection
-            />
+                <AddIcon />
+            </IconButton>
+        )}
             <Dialog open={openForm} onClose={handleCloseForm}>
     <DialogTitle>Crear Deuda</DialogTitle>
     <form onSubmit={handleSubmit(onSubmitcreate)}>
@@ -322,7 +371,6 @@ function Deudas() {
     </form>
 </Dialog>
 
-
             <Dialog open={open} onClose={() => setOpen(false)}>
                 <DialogTitle>Editar Deuda</DialogTitle>
                 <DialogContent>
@@ -342,6 +390,7 @@ function Deudas() {
 ))}
     </Select>
 </FormControl>
+
 <FormLabel component="legend">Monto Deuda (CLP)</FormLabel>
 <FormControl fullWidth>
                     <TextField
@@ -417,7 +466,28 @@ function Deudas() {
                     }}>Guardar</Button>
                 </DialogActions>
             </Dialog>
+        <DataGrid
+            rows={rows}
+            columns={columns}
+            pageSize={5}
+            rowsPerPageOptions={[5, 10]}
+            checkboxSelection
+        />
         </div>
+        <div style={{ position: 'relative', width: '100%' }}>
+    {user.roles[0].name === 'admin' && (
+        <Button
+            variant="contained"
+            color="primary"
+            startIcon={<AddCircleOutlineIcon />}
+            onClick={handleAddInterest}
+            style={{ position: 'absolute', bottom: 0, left: 0 }}  // Añadido para posicionar el botón en la parte inferior izquierda
+        >
+            Añadir Interés
+        </Button>
+    )}
+</div>
+    </>
     );
 }
 

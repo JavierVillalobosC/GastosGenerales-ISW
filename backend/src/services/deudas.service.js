@@ -126,39 +126,25 @@ async function updateDeuda(id, deuda) {
   try {
     const { username, service, initialdate, finaldate, amount, estado } = deuda;
 
-    console.log("update-1", deuda);
-
-    // const deudaFound = await Debt.findById(id);
     const deudaFound = await Debt.findOne({ id: id });
     if (!deudaFound) return [null, "La deuda no existe"];
-
-    console.log("update-1b", deudaFound);
 
     const userFound = await User.findOne({ username: username });
     console.log("userFound", userFound);
     if (!userFound) return [null, "El usuario no existe"];
 
-    console.log("update-2", userFound);
-
     const debtStatesFound = await debtStates.find({ name: { $in: estado } });
     if (debtStatesFound.length === 0) return [null, "El estado no existe"];
     const mydebtStates = debtStatesFound.map((estado) => estado._id);
-
-    console.log("update-3", debtStatesFound);
-    console.log("update-4", service);
 
     const idServiceFound = await Categoria.find({ name: { $in: service } });
     if (idServiceFound.length === 0)
       return [null, "El servicio especificado no existe"];
     const myidService = idServiceFound.map((idService) => idService._id);
 
-    console.log("update-4", myidService);
-
     // Actualizar la deuda del usuario
     userFound.debt += amount;
     userFound.estado = mydebtStates;
-
-    console.log("update-5");
 
     // Si la deuda es cero, quita al usuario de la lista negra
     /* if (userFound.debt === 0 && userFound.blacklisted) {
@@ -198,10 +184,10 @@ async function updateDeuda(id, deuda) {
 
 async function deleteDeuda(id) {
   try {
-    const deudaFound = await Debt.findById(id);
+    const deudaFound = await Debt.findOne({ id: id });
     if (!deudaFound) return [null, "La deuda no existe"];
 
-    await Debt.findByIdAndDelete(id);
+    await Debt.findOneAndDelete({ id: deudaFound.id });
 
     return [deudaFound, null];
   } catch (error) {
