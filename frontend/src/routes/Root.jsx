@@ -107,24 +107,28 @@ function PageRoot() {
             </ListItemButton>
       
             
-            <ListItemButton key="Crear Apelación" component={Link} to="/apelacionescrear">
-                <ListItemIcon>
-                  <ReportProblemIcon style={{ color: '#FFFFFF' }}/>
-                </ListItemIcon>
-                <ListItemText primary="Crear Apelación" style={{ color: '#FFFFFF' }}/>
-              </ListItemButton>
-              <ListItemButton key="Reporte Deudas" component={Link} to="/reportedeudas">
-            <ListItemIcon>
-              <AssessmentIcon style={{ color: '#FFFFFF' }}/>
-            </ListItemIcon>
-            <ListItemText primary="Reporte Deudas" style={{ color: '#FFFFFF' }}/>
-          </ListItemButton>
-          <ListItemButton key="Reporte Pagos" component={Link} to="/reportepagos">
-            <ListItemIcon>
-              <AssessmentIcon style={{ color: '#FFFFFF' }}/>
-            </ListItemIcon>
-            <ListItemText primary="Reporte Pagos" style={{ color: '#FFFFFF' }}/>
-          </ListItemButton>
+            {user.roles[0].name !== 'admin' && (
+              <>
+                  <ListItemButton key="Crear Apelación" component={Link} to="/apelacionescrear">
+                      <ListItemIcon>
+                          <ReportProblemIcon style={{ color: '#FFFFFF' }}/>
+                      </ListItemIcon>
+                      <ListItemText primary="Crear Apelación" style={{ color: '#FFFFFF' }}/>
+                  </ListItemButton>
+                  <ListItemButton key="Reporte Deudas" component={Link} to="/reportedeudas">
+                      <ListItemIcon>
+                          <AssessmentIcon style={{ color: '#FFFFFF' }}/>
+                      </ListItemIcon>
+                      <ListItemText primary="Reporte Deudas" style={{ color: '#FFFFFF' }}/>
+                  </ListItemButton>
+                  <ListItemButton key="Reporte Pagos" component={Link} to="/reportepagos">
+                      <ListItemIcon>
+                          <AssessmentIcon style={{ color: '#FFFFFF' }}/>
+                      </ListItemIcon>
+                      <ListItemText primary="Reporte Pagos" style={{ color: '#FFFFFF' }}/>
+                  </ListItemButton>
+              </>
+          )}
 
           {user.roles[0].name === 'admin' && (
     <ListItemButton key="Blacklist" component={Link} to="/blacklist">
