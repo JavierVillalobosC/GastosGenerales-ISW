@@ -17,6 +17,7 @@ import NotificationsIcon from '@mui/icons-material/Notifications';
 import AppealIcon from '@mui/icons-material/ReportProblem';
 import ReportProblemIcon from '@mui/icons-material/ReportProblem';
 import AssessmentIcon from '@mui/icons-material/Assessment';
+import DoNotTouchIcon from '@mui/icons-material/DoNotTouch';
 
 function Root() {
   return (
@@ -122,6 +123,15 @@ function PageRoot() {
             </ListItemIcon>
             <ListItemText primary="Reportes" style={{ color: '#FFFFFF' }}/>
           </ListItemButton>
+
+          {user.roles[0].name === 'admin' && (
+    <ListItemButton key="Blacklist" component={Link} to="/blacklist">
+        <ListItemIcon style={{ color: '#FFFFFF' }}>
+            <DoNotTouchIcon />
+        </ListItemIcon>
+        <ListItemText primary="Blacklist" style={{ color: '#FFFFFF' }}/>
+    </ListItemButton>
+)}
                     
           </List>
         </Drawer>
