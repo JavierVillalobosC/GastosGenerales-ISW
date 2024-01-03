@@ -12,7 +12,8 @@ import Appeal from './routes/Appeal.jsx';
 import Blacklist from './routes/Blacklist.jsx';
 import Notificaciones from './routes/Notificaciones.jsx'
 import DebtorAppeal from './routes/DebtorAppeal.jsx';
-import Report from './routes/Report.jsx';
+import Report from './routes/ReportDebts.jsx';
+import ReportPays from './routes/ReportPays.jsx';
 
 
 const router = createBrowserRouter([
@@ -50,8 +51,12 @@ const router = createBrowserRouter([
         element: <DebtorAppeal />, // Componente DebtorAppeal
       },
       {
-        path: '/reportes', // Ruta para la vista de Reportes
+        path: '/reportedeudas', // Ruta para la vista de Reportes
         element: <Report />, // Componente Report
+      },
+      {
+        path: '/reportepagos', // Ruta para la vista de Reportes
+        element: <ReportPays />, // Componente Report
       },
       {
         path: '/Notificaciones', // Ruta para la vista de Notificaciones

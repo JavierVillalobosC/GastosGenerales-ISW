@@ -113,11 +113,17 @@ function PageRoot() {
                 </ListItemIcon>
                 <ListItemText primary="Crear Apelación" style={{ color: '#FFFFFF' }}/>
               </ListItemButton>
-              <ListItemButton key="Reportes" component={Link} to="/reportes">
+              <ListItemButton key="Reporte Deudas" component={Link} to="/reportedeudas">
             <ListItemIcon>
               <AssessmentIcon style={{ color: '#FFFFFF' }}/>
             </ListItemIcon>
-            <ListItemText primary="Reportes" style={{ color: '#FFFFFF' }}/>
+            <ListItemText primary="Reporte Deudas" style={{ color: '#FFFFFF' }}/>
+          </ListItemButton>
+          <ListItemButton key="Reporte Pagos" component={Link} to="/reportepagos">
+            <ListItemIcon>
+              <AssessmentIcon style={{ color: '#FFFFFF' }}/>
+            </ListItemIcon>
+            <ListItemText primary="Reporte Pagos" style={{ color: '#FFFFFF' }}/>
           </ListItemButton>
 
           {user.roles[0].name === 'admin' && (

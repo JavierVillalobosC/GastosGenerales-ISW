@@ -51,7 +51,7 @@ exports.getDeudasReportForUserPDF = async (req, res) => {
         const docDefinition = {
             content: [
                 { text: 'Informe de Deudas', style: 'header' },
-                ...await Promise.all(report.map(async (deuda, index) => {
+                ...await Promise.all(report.deudas.map(async (deuda, index) => {
                     // Si la deuda es null o undefined, o no tiene las propiedades esperadas, devolver un array vacío
                     if (!deuda || !deuda.user || !deuda.serviceId || !deuda.initialDate || !deuda.finalDate || !deuda.actualamount || !deuda.numberOfPayments || !deuda.state) {
                         return [];
@@ -61,24 +61,44 @@ exports.getDeudasReportForUserPDF = async (req, res) => {
                     console.log(`Deuda ${index}:`, deuda);
 
                     // Buscar el nombre del servicio y estado por su ID
-                    const servicio = await Categoria.findById(deuda.serviceId);
-                    const estado = await DebtStates.findById(deuda.state);
+                    const servicio = await Categoria.findOne({ name: deuda.serviceId });
+                    const estado = await DebtStates.findOne({ name: deuda.state });
 
                     return [
                         { text: `Usuario: ${deuda.user}` },
                         { text: `Servicio: ${servicio ? servicio.name : 'No encontrado'}` },
                         { text: `Fecha inicial: ${new Date(deuda.initialDate).toLocaleDateString()}` },
                         { text: `Fecha final: ${new Date(deuda.finalDate).toLocaleDateString()}` },
-                        { text: `Monto actual: ${deuda.actualamount}` },
+                        { text: `Monto actual: ${deuda.actualamount.toLocaleString('es-Cl', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` },
                         { text: `Número de pagos: ${deuda.numberOfPayments}` },
                         { text: `Estado: ${estado ? estado.name : 'No encontrado'}` },
                         '\n'
                     ];
                 })),
-                { text: `Total de deudas: ${report.totalAmount}` },
-                { text: `Promedio de deudas: ${report.averageAmount}` },
-                { text: `Total de pagos: ${report.totalNumberOfPayments}` },
-                { text: `Promedio de pagos: ${report.averageNumberOfPayments}` }
+                { 
+                    text: [
+                      { text: 'Total de Deudas: ', bold: true, fontSize: 14 },
+                      { text: `${report.resumen.totalAmount.toLocaleString('es-CL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, fontSize: 12 }
+                    ]
+                  },
+                  { 
+                    text: [
+                      { text: 'Promedio de Deudas: ', bold: true, fontSize: 14 },
+                      { text: `${report.resumen.averageAmount.toLocaleString('es-CL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, fontSize: 12 }
+                    ]
+                  },
+                  { 
+                    text: [
+                      { text: 'Total de Pagos: ', bold: true, fontSize: 14 },
+                      { text: `${report.resumen.totalNumberOfPayments}`, fontSize: 12 }
+                    ]
+                  },
+                  { 
+                    text: [
+                      { text: 'Promedio de Pagos: ', bold: true, fontSize: 14 },
+                      { text: `${report.resumen.averageNumberOfPayments}`, fontSize: 12 }
+                    ]
+                  }
             ],
             styles: {
                 header: {
@@ -124,42 +144,50 @@ exports.getPagosReportForUserPDF = async (req, res) => {
         const docDefinition = {
             content: [
                 { text: 'Informe de Pagos', style: 'header' },
-                ...await Promise.all(report.map(async (pago, index) => {
+                ...report.map((pago, index) => {
                     // Si el pago es null o undefined, o no tiene las propiedades esperadas, devolver un array vacío
                     if (!pago || !pago.user || !pago.serviceId || !pago.date || !pago.type || !pago.status) {
                         return [];
                     }
-
+        
                     // Registrar el objeto pago
                     console.log(`Pago ${index}:`, pago);
-
-                    // Buscar el nombre del servicio, tipo y estado por su ID
-                    const servicio = await Categoria.findById(pago.serviceId);
-                    const tipo = await paytype.findById(pago.type);
-                    const estado = await DebtStates.findById(pago.status);
-
+        
                     // Actualizar el total y el conteo
                     totalAmount += pago.amount;
                     count++;
-
+        
                     return [
                         { text: `Usuario: ${pago.user}` },
-                        { text: `Servicio: ${servicio ? servicio.name : 'No encontrado'}` },
+                        { text: `Servicio: ${pago.serviceId}` },
                         { text: `Fecha: ${new Date(pago.date).toLocaleDateString()}` },
                         { text: `Monto: ${pago.amount ? pago.amount : 'No disponible'}` },
-                        { text: `Tipo: ${tipo ? tipo.name : 'No encontrado'}` },
-                        { text: `Estado: ${estado ? estado.name : 'No encontrado'}` },
+                        { text: `Tipo: ${pago.type}` },
+                        { text: `Estado: ${pago.status}` },
                         '\n'
                     ];
-                })),
-                { text: `Total pagado: ${totalAmount}` },
-                { text: `Promedio de pagos: ${count > 0 ? totalAmount / count : 'No disponible'}` }
+                }),
+                { 
+                    text: [
+                        { text: 'Total Pagado: ', style: 'boldText', },
+                        { text: `${totalAmount}` }
+                    ]
+                },
+                { 
+                    text: [
+                        { text: 'Promedio de Pagos: ', style: 'boldText' },
+                        { text: `${count > 0 ? totalAmount / count : 'No disponible'}` }
+                    ]
+                }
             ],
             styles: {
                 header: {
                     fontSize: 18,
                     bold: true,
                     margin: [0, 0, 0, 10]
+                },
+                boldText: {
+                    bold: true
                 }
             },
             footer: function(currentPage, pageCount) { return currentPage.toString() + ' de ' + pageCount; },

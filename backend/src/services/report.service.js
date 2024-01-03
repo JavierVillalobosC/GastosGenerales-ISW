@@ -1,8 +1,11 @@
 "use strict"
 
+const Categoria = require("../models/categorias.model.js");
 const Debt = require("../models/deuda.model.js");
 const Pay = require("../models/pago.model.js");
 const User = require("../models/user.model.js");
+const DebtStates = require("../models/debtstate.model.js");
+const paytype = require("../models/paytypes.model.js");
 
 /**
  * 
@@ -30,19 +33,29 @@ async function getDeudasReportForUser(userId) {
         averageAmount = totalAmount / deudas.length;
         averageNumberOfPayments = totalNumberOfPayments / deudas.length;
 
-        
-        const report = deudas.map(deuda => {
+        // Adaptar el reporte para incluir el nombre del servicio y el estado en texto
+        const report = await Promise.all(deudas.map(async (deuda) => {
+            // Si la deuda es null o undefined, o no tiene las propiedades esperadas, devolver un objeto vacío
+            if (!deuda || !deuda.user || !deuda.idService || !deuda.initialdate || !deuda.finaldate || !deuda.amount || !deuda.numerocuotas || !deuda.estado) {
+                return {};
+            }
+
+            // Buscar el nombre del servicio y estado por su ID
+            const servicio = await Categoria.findById(deuda.idService);
+            const estado = await DebtStates.findById(deuda.estado);
+
+            // Devolver la deuda adaptada
             return {
                 id: deuda.id,
                 user: deuda.user.username, 
-                serviceId: deuda.idService,
+                serviceId: servicio ? servicio.name : 'No encontrado',
                 initialDate: deuda.initialdate,
                 finalDate: deuda.finaldate,
                 actualamount: deuda.amount,
                 numberOfPayments: deuda.numerocuotas,
-                state: deuda.estado
+                state: estado ? estado.name : 'No encontrado'
             };
-        });
+        }));
 
         // Crear objeto de resumen
         const resumen = {
@@ -136,30 +149,44 @@ async function getPagosReportForUser(userId) {
         let averageAmount = 0;
 
         pagos.forEach(pago => {
-            totalAmount += pago.amount;
+            if (pago.amount) {
+                totalAmount += pago.amount;
+            }
         });
 
         averageAmount = totalAmount / pagos.length;
 
+        const ObjectId = require('mongoose').Types.ObjectId;
+        const report = await Promise.all(pagos.map(async pago => {
+            let servicio;
+            if (ObjectId.isValid(pago.idService)) {
+                // Si idService es un ObjectId válido, buscar el servicio en la base de datos
+                servicio = await Categoria.findById(pago.idService);
+            } else {
+                // Si idService no es un ObjectId válido, asumir que es el nombre del servicio
+                servicio = { name: pago.idService };
+            }
         
-        const report = pagos.map(pago => {
+            const tipo = await paytype.findById(pago.type);
+            const estado = await DebtStates.findById(pago.status);
+        
             return {
                 id: pago.id,
                 user: pago.user.username, 
-                serviceId: pago.idService,
+                serviceId: servicio ? servicio.name : 'No encontrado',
                 date: pago.date,
                 amount: pago.amount,
-                type: pago.type,
-                status: pago.status
+                type: tipo ? tipo.name : 'No encontrado',
+                status: estado ? estado.name : 'No encontrado'
             };
-        });
-
+        }));
+        
         // Agregar totales y promedios al informe
         report.push({
             totalAmount,
             averageAmount
         });
-
+        
         return [report, null];
     } catch (error) {
         console.error("report.service -> getPagosReportForUser", error);
