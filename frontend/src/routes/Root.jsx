@@ -72,12 +72,12 @@ function PageRoot() {
               </ListItemIcon>
               <ListItemText primary="Usuarios" style={{ color: '#FFFFFF' }}/>
             </ListItemButton>
-            <ListItemButton key="Servicios">
+{/*             <ListItemButton key="Servicios">
             <ListItemIcon>
             <ServicesIcon style={{ color: '#FFFFFF' }}/>
             </ListItemIcon>
                 <ListItemText primary="Servicios" style={{ color: '#FFFFFF' }}/>
-            </ListItemButton>
+            </ListItemButton> */}
             <ListItemButton key="Notificaciones" component={Link} to="/Notificaciones">
             <ListItemIcon>
             <NotificationsIcon style={{ color: '#FFFFFF' }}/>
