@@ -37,6 +37,7 @@ function Deudas() {
     const [users, setUsers] = React.useState([]);
     const [services, setServices] = React.useState([]);
     const [debtStates, setDebtStates] = React.useState([]);
+    const [isPayFormOpen, setIsPayFormOpen] = React.useState(false);
     const { register, handleSubmit } = useForm();
     const { user } = useAuth();
 
@@ -53,6 +54,20 @@ function Deudas() {
             finaldate,
         });
         setOpen(true);
+    };
+
+    const handlePayClick = (row) => {
+        console.log("row", row);
+        const initialdate = row.initialdate && !isNaN(new Date(row.initialdate)) ? new Date(row.initialdate).toISOString().split('T')[0] : '';
+        const finaldate = row.finaldate && !isNaN(new Date(row.finaldate)) ? new Date(row.finaldate).toISOString().split('T')[0] : '';
+
+        setEditingRow({
+            ...row,
+            _id: row._id,
+            initialdate,
+            finaldate,
+        });
+        setIsPayFormOpen(true);
     };
 
     const handleDeleteDebt = (id) => {
@@ -82,6 +97,18 @@ function Deudas() {
         setOpenForm(false);
       };
 
+      const onSubmitpay = () => {
+        const data = {...editingRow}
+        axios.post('/pagos', data)
+            .then((response) => {
+                console.log(response);
+                setOpenForm(false);
+                // Aquí puedes actualizar tus datos de pagos (rows) si es necesario
+            })
+            .catch((error) => {
+                console.error('Hubo un error al crear el pago: ', error);
+            });
+    };
       const onSubmitcreate = () => {
         const data = {...editingRow}
         axios.post('/deudas', data)
@@ -183,6 +210,22 @@ if (user.roles[0].name === 'admin') {
     );
 }
 
+if (user.roles[0].name === 'user') {
+    columns.push(
+        {
+            field: 'pay',
+            headerName: 'Pagar',
+            width: 130,
+            renderCell: (params) => (
+               <Button variant="contained" color="primary" onClick={() => handlePayClick(params.row)}>
+                Pagar
+            </Button>
+        ),
+        }
+    )
+    }// Agregado para cambiar el color del botón
+
+
     React.useEffect(() => {
 
         axios.get('/users')
@@ -265,7 +308,22 @@ if (user.roles[0].name === 'admin') {
         }, []);
 
     console.log("editingRow", editingRow);
+    // Obtén la fecha de hoy
+    const today = new Date();
 
+    // Formatea la fecha al formato correcto
+    const formattedDate = today.toISOString().substr(0, 10);
+
+    // Formatea la fecha al formato dd-mm-yyyy
+    
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // Los meses en JavaScript empiezan en 0
+        const year = date.getFullYear();
+
+        return `${day}-${month}-${year}`;
+    };
     return (
         <>
         <div style={{ backgroundColor: 'white',
@@ -274,6 +332,68 @@ if (user.roles[0].name === 'admin') {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center'  }}>
+{isPayFormOpen && (
+    <Dialog open={isPayFormOpen} onClose={() => setIsPayFormOpen(false)}>
+        <DialogTitle>Pagar</DialogTitle>
+        <form onSubmit={handleSubmit(onSubmitpay)}>
+            <DialogContent>
+                <FormLabel component="legend">Usuario</FormLabel>
+                <FormControl fullWidth>
+                <TextField
+        autoFocus
+        margin="dense"
+        id="username"
+        value={editingRow ? editingRow.username : ''}
+        onChange={(event) => setEditingRow({ ...editingRow, username: event.target.value })}
+    />
+</FormControl>
+                <FormLabel component="legend">Monto Deuda (CLP)</FormLabel>
+                <FormControl fullWidth>
+                    <TextField
+                        margin="dense"
+                        id="amount"
+                        //type="number"
+                        fullWidth
+                        value={editingRow ? editingRow.amount : ''}
+                        onChange={(event) => setEditingRow({ ...editingRow, amount: event.target.value })}
+                    />
+                </FormControl>
+                
+                <FormLabel component="legend">Fecha de pago</FormLabel>
+                <FormControl fullWidth>
+    <TextField
+        id="initialdate"
+        type="date"
+        defaultValue={editingRow && editingRow.initialdate ? editingRow.initialdate : formattedDate}
+        onChange={(event) => setEditingRow({ ...editingRow, initialdate: event.target.value })}
+        InputLabelProps={{
+            shrink: true,
+        }}
+    />
+</FormControl>
+
+            <FormLabel component="legend">Servicio</FormLabel>
+            <FormControl fullWidth>
+                <TextField
+                    margin="dense"
+                    id="service"
+                    value={editingRow ? editingRow.service : ''}
+                    onChange={(event) => setEditingRow({ ...editingRow, service: event.target.value })}
+                />
+            </FormControl>
+            
+            </DialogContent>
+            <DialogActions>
+                <Button onClick={() => setIsPayFormOpen(false)} color="primary">
+                    Cancelar
+                </Button>
+                <Button type="submit" color="primary">
+                    Pagar
+                </Button>
+            </DialogActions>
+        </form>
+    </Dialog>
+)}
             {user.roles[0].name === 'admin' && (
             <IconButton color="primary" onClick={handleOpenForm}>
                 <AddIcon />
@@ -297,6 +417,7 @@ if (user.roles[0].name === 'admin') {
         {user.username}
     </MenuItem>
 ))}
+
     </Select>
 </FormControl>
 <FormLabel component="legend">Monto Deuda (CLP)</FormLabel>

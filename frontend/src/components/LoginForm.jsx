@@ -71,10 +71,7 @@ function LoginForm() {
             error={Boolean(errors.password)}
             helperText={errors.password?.message}
           />
-          <FormControlLabel
-            control={<Checkbox value="remember" color="primary" />}
-            label="Recuardame" sx={{ color: 'black' }}
-          />
+          
           <Button
             type="submit"
             fullWidth
