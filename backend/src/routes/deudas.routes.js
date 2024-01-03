@@ -20,4 +20,26 @@ router.put("/:id", authorizationMiddleware.isAdmin, deudaController.updateDeuda)
 router.delete("/:id", authorizationMiddleware.isAdmin, deudaController.deleteDeuda);
 router.get("/user/:id", deudaController.getDeudasByUserId);
 
+router.get('/deudas-con-intereses', async (req, res) => {
+    const [deudas, error] = await getDeudasinterest();
+    if (error) {
+      res.status(500).json({ error });
+    } else {
+      res.json(deudas);
+    }
+  });
+
+router.get('/deudas-con-intereses/:email', (req, res) => {
+    const email = req.params.email;
+  
+    getDeudasByEmail(email)
+      .then(deudas => {
+        res.json(deudas);
+      })
+      .catch(err => {
+        console.error(err);
+        res.status(500).json({ error: 'Hubo un error al obtener las deudas del usuario' });
+      });
+  });
+
 module.exports = router;

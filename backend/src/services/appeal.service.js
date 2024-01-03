@@ -14,14 +14,27 @@ const { eliminarInteres } = require("../services/interes.service.js");
 
 async function createAppeal(appeal) {
     try {
+        console.log('createAppeal is running');
         const { userId, debtId, text, files } = appeal;
 
+        if (!Array.isArray(files) || !files.every(file => typeof file === 'object')) {
+        console.error('files debe ser un array de objetos');
+        return;
+    }
+
+        console.log(typeof userId); // Debería imprimir 'number' si userId es un número
+        console.log(typeof debtId); // Debería imprimir 'number' si debtId es un número
+        console.log(`userId: ${userId}, debtId: ${debtId}`);
+        
         const userFound = await User.findById(userId);
         if (!userFound) return [null, 'El usuario no existe'];
 
         // Verifica si la deuda específica tiene interés aplicado
         const debt = await Debt.findOne({ _id: debtId, user: userId, interestApplied: true });
-        if (!debt) return [null, 'La deuda no existe o no tiene interés aplicado'];
+        if (!debt) {
+            console.error(`No se encontró ninguna deuda con id: ${debtId}, user: ${userId}, interestApplied: true`); // Imprime un mensaje de error si no se encontró la deuda
+            return [null, 'La deuda no existe o no tiene interés aplicado'];
+        }
 
         const appealCreated = await Appeal.create({ userId, debtId, text, files }); // Guarda los archivos en la base de datos
         return [appealCreated, null];
@@ -145,8 +158,8 @@ async function updateAppealStatus(id, status) {
         const appeal = await Appeal.findByIdAndUpdate(id, { status }, { new: true });
         if (!appeal) return [null, 'Appeal not found'];
 
-        // Si el estado es 'approved', eliminar el interés
-        if (status === 'approved') {
+        // Si el estado es 'Aprobada', eliminar el interés
+        if (status === 'Aprobada') {
             const userDebt = await Debt.findOne({ user: appeal.userId, interestApplied: true });
             if (userDebt) {
                 // Restar el monto del interés de la deuda

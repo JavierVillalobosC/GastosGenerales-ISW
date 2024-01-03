@@ -25,8 +25,8 @@ const appealSchema = new mongoose.Schema({
     ], // Referencia a los archivos
     status: { 
         type: String,
-         enum: ['pending', 'approved', 'rejected'], 
-         default: 'pending' 
+         enum: ['Pendiente', 'Aprobada', 'Rechazada'], 
+         default: 'Pendiente' 
         },
 }, { timestamps: true });
 

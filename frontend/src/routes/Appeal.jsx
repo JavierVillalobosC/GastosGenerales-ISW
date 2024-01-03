@@ -14,29 +14,25 @@ import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 
 async function downloadFile(fileId) {
-    console.log('Downloading file with id:', fileId);
-    try {
-        const token = localStorage.getItem('token'); // Obtén el token de alguna forma de almacenamiento seguro
+  console.log('Downloading file with id:', fileId);
+  try {
+      const response = await axios.get(`/file/${fileId}`, {
+        responseType: 'blob', // Indica que se espera un Blob
+      });
 
-        const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/file/${fileId}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          },
-          responseType: 'blob', // Indica que se espera un Blob
-        });
-  
-        const url = window.URL.createObjectURL(new Blob([response.data]));
-        const link = document.createElement('a');
-        link.href = url;
-        let filename = response.headers['content-disposition'] ? response.headers['content-disposition'].split('filename=')[1] : `${fileId}.png`; // Si no hay encabezado 'content-disposition', usa el fileId como nombre de archivo
-        filename = filename.replace(/['"]+/g, ''); // Elimina las comillas dobles y simples del nombre del archivo
-        link.setAttribute('download', filename);
-        document.body.appendChild(link);
-        link.click();
-        link.parentNode.removeChild(link);
-    } catch (error) {
-      console.error('Error downloading file', error);
-    }
+      const blob = new Blob([response.data], { type: response.headers['content-type'] });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      let filename = response.headers['content-disposition'] ? response.headers['content-disposition'].split('filename=')[1] : fileId; // Si no hay encabezado 'content-disposition', usa el fileId como nombre de archivo
+      filename = filename.replace(/['"]+/g, ''); // Elimina las comillas dobles y simples del nombre del archivo
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+  } catch (error) {
+    console.error('Error downloading file', error);
+  }
 }
 
 function Appeal() {
@@ -63,11 +59,11 @@ function Appeal() {
   
     const handleApprove = async (id) => {
         try {
-          const response = await axios.put(`/appeals/${id}/status`, { status: 'approved' });
-          console.log('Appeal approved:', response.data);
+          const response = await axios.put(`/appeals/${id}/status`, { status: 'Aprobada' });
+          console.log('Appeal Aprobada:', response.data);
       
           // Update rows state
-          setRows(rows.map(row => row.id === id ? { ...row, appealStatus: 'approved' } : row));
+          setRows(rows.map(row => row.id === id ? { ...row, appealStatus: 'Aprobada' } : row));
         } catch (error) {
           console.error('Error approving appeal:', error);
         }
@@ -75,11 +71,11 @@ function Appeal() {
       
       const handleReject = async (id) => {
         try {
-          const response = await axios.put(`/appeals/${id}/status`, { status: 'rejected' });
-          console.log('Appeal rejected:', response.data);
+          const response = await axios.put(`/appeals/${id}/status`, { status: 'Rechazada' });
+          console.log('Appeal Rechazada:', response.data);
       
           // Update rows state
-          setRows(rows.map(row => row.id === id ? { ...row, appealStatus: 'rejected' } : row));
+          setRows(rows.map(row => row.id === id ? { ...row, appealStatus: 'Rechazada' } : row));
         } catch (error) {
           console.error('Error rejecting appeal:', error);
         }

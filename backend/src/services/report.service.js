@@ -44,15 +44,16 @@ async function getDeudasReportForUser(userId) {
             };
         });
 
-        // Agregar totales y promedios al informe
-        report.push({
+        // Crear objeto de resumen
+        const resumen = {
             totalAmount,
             averageAmount,
             totalNumberOfPayments,
             averageNumberOfPayments
-        });
+        };
 
-        return [report, null];
+        // Devolver objeto con deudas y resumen
+        return [{ deudas: report, resumen }, null];
     } catch (error) {
         console.error("report.service -> getDeudasReport", error);
     }

@@ -99,7 +99,26 @@ async function crearInteres() {
     }
 }
 
+async function listarDeudasConIntereses(userId) {
+    try {
+        // Busca todas las deudas del usuario con interestApplied: true
+        const deudasConIntereses = await Debt.find({ user: userId, interestApplied: true }).exec();
+
+        // Si no se encontraron deudas, muestra un mensaje y termina la función
+        if (deudasConIntereses.length === 0) {
+            console.log(`El usuario con id ${userId} no tiene deudas con intereses aplicados.`);
+            return;
+        }
+
+        // Muestra las deudas en la consola
+        console.log(`Deudas con intereses del usuario con id ${userId}:`, deudasConIntereses);
+    } catch (error) {
+        console.error('Error al listar las deudas con intereses:', error);
+    }
+}
+
 module.exports = {
     getIntereses,
-    crearInteres
+    crearInteres,
+    listarDeudasConIntereses
 };

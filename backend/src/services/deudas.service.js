@@ -26,6 +26,20 @@ async function getDeudas() {
   }
 }
 
+async function getDeudasinterest() {
+  try {
+      const deudas = await Debt.find({ interestApplied: true })
+      .populate("user")
+      .exec();
+
+      if (!deudas) return [null, "No hay deudas"];
+
+      return [deudas, null];
+  } catch (error) {
+      handleError(error, "deudas.service -> getDeudas");
+  }
+}
+
 /**
  *
  * @param {Object} deuda Objeto de deuda
@@ -354,4 +368,5 @@ module.exports = {
   deleteDeuda,
   removeFromBlacklist,
   getDeudasByUserId,
+  getDeudasinterest
 };
