@@ -130,14 +130,14 @@ function PageRoot() {
               </>
           )}
 
-          {user.roles[0].name === 'admin' && (
+          {/* {user.roles[0].name === 'admin' && (
     <ListItemButton key="Blacklist" component={Link} to="/blacklist">
         <ListItemIcon style={{ color: '#FFFFFF' }}>
             <DoNotTouchIcon />
         </ListItemIcon>
         <ListItemText primary="Blacklist" style={{ color: '#FFFFFF' }}/>
     </ListItemButton>
-)}
+)} */}
                     
           </List>
         </Drawer>

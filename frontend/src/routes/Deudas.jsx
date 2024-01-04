@@ -123,17 +123,23 @@ function Deudas() {
       };
 
       const handleAddInterest = () => {
-        // Aquí puedes hacer una llamada a la API para agregar intereses a las deudas de los usuarios
-        // Por ejemplo:
-        axios.post('/interes/')
+        if (window.confirm('¿Estás seguro de que quieres añadir interés?')) {
+          // El usuario hizo clic en "Aceptar", así que procede con la adición de interés.
+          axios.post('/interes/')
             .then((response) => {
-                console.log(response);
-                // Aquí puedes actualizar tus datos de deudas (rows) si es necesario
+              console.log(response);
+              // Aquí puedes actualizar tus datos de deudas (rows) si es necesario
+      
+              // Muestra un mensaje de confirmación
+              alert('Interés añadido con éxito');
             })
             .catch((error) => {
-                console.error('Hubo un error al agregar intereses: ', error);
+              console.error('Hubo un error al agregar intereses: ', error);
             });
-    };
+        } else {
+          // El usuario hizo clic en "Cancelar", así que no hagas nada.
+        }
+      };
 
     const handleUpdate = () => {
 
@@ -602,7 +608,7 @@ if (user.roles[0].name === 'user') {
             color="primary"
             startIcon={<AddCircleOutlineIcon />}
             onClick={handleAddInterest}
-            style={{ position: 'absolute', bottom: 0, left: 0 }}  // Añadido para posicionar el botón en la parte inferior izquierda
+            style={{ position: 'absolute', bottom: 10, left: 50 }}  // Añadido para posicionar el botón en la parte inferior izquierda
         >
             Añadir Interés
         </Button>
