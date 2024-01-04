@@ -65,7 +65,7 @@ const sendMail = async (days) => {
             <html>
             <body>
                 <header>
-                    <h1>Recordatorio de Pago</h1>
+                    <h3>Recordatorio de Pago</h3>
                 </header>
                 <main>
                     <p>Estimad@ ${user.username},</p>
@@ -77,7 +77,7 @@ const sendMail = async (days) => {
                         <li>Cantidad de cuotas: ${user.numerocuotas}</li>
                         <li>Fecha de vencimiento: ${formattedDate}</li>
                     </ul>
-                    <p>Para realizar el pago, visita nuestro <a href="https://intranet.ubiobio.cl">sitio web</a> o acude presencialemente a la municipalidad.</p>
+                    <p>Para realizar el pago, visita nuestro <a href="http://146.83.198.35:1633/auth">sitio web</a> o acude presencialemente a la municipalidad.</p>
                     <img src="https://i.imgur.com/dUmvZnw.png" alt="Ejemplo de imagen" width="333" height="128">
                 </main>
             </body>

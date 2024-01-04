@@ -4,6 +4,7 @@ import Grid from '@mui/material/Grid';
 import axios from '../services/root.service';
 import IconButton from '@mui/material/IconButton';
 import EmailIcon from '@mui/icons-material/Email';
+import MarkAsUnreadIcon from '@mui/icons-material/MarkAsUnread';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
@@ -75,6 +76,7 @@ function Notificaciones() {
   const [errorAlert, setErrorAlert] = React.useState(false);
   const [subjectError, setSubjectError] = React.useState(false);
   const [contentError, setContentError] = React.useState(false);
+  const [sendToAll, setSendToAll] = React.useState(false);
   const [emailContent, setEmailContent] = React.useState('');
   const [emailSubject, setEmailSubject] = React.useState('');
   const [userEmail, setUserEmail] = React.useState('');
@@ -82,8 +84,16 @@ function Notificaciones() {
 
   const handleClickOpen = (email, username) => {
     setOpen(true);
+    setSendToAll(false);
     setUserEmail(email);
     setUsername(username);
+    setEmailContent('');
+    setEmailSubject('');
+  };
+
+  const handleClickOpenAll = () => {
+    setOpen(true);
+    setSendToAll(true);
     setEmailContent('');
     setEmailSubject('');
   };
@@ -106,23 +116,40 @@ function Notificaciones() {
       return;
     }
   
-    axios.post('/manualEmail', { emailContent, emailSubject, userEmail })
-      .then(response => {
-        console.log(response.data);
-        // Muestra el alerta de éxito
-        setSuccessAlert(true);
-        handleClose();
-      })
-      .catch(error => {
-        console.error(error);
-        // Muestra el alerta de error
-        setErrorAlert(true);
-        handleClose(); // Cierra el cuadro de texto
+    if (sendToAll) {
+      rows.forEach(row => {
+        axios.post('/manualEmail', { emailContent, emailSubject, userEmail: row.email })
+          .then(response => {
+            console.log(response.data);
+            // Muestra el alerta de éxito
+            setSuccessAlert(true);
+          })
+          .catch(error => {
+            console.error(error);
+            // Muestra el alerta de error
+            setErrorAlert(true);
+          });
       });
+    } else {
+      axios.post('/manualEmail', { emailContent, emailSubject, userEmail })
+        .then(response => {
+          console.log(response.data);
+          // Muestra el alerta de éxito
+          setSuccessAlert(true);
+        })
+        .catch(error => {
+          console.error(error);
+          // Muestra el alerta de error
+          setErrorAlert(true);
+        });
+    }
+  
+    handleClose(); // Cierra el cuadro de texto
   }
 
   const columns = [
-    { field: 'id', headerName: 'ID', width: 70, headerAlign: 'center' },
+    { field: 'rowNumber', headerName: 'N°', width: 40, headerAlign: 'center', align: 'center' },
+/*     { field: 'id', headerName: 'ID', width: 70, headerAlign: 'center' }, */
     { field: 'username', headerName: 'Nombre de Usuario', flex: 2, headerAlign: 'center' },
     { field: 'email', headerName: 'Correo Electrónico', flex: 3, headerAlign: 'center' },
     {
@@ -154,6 +181,7 @@ function Notificaciones() {
         const users = response.data.data;
         setRows(users.map((user, index) => ({
           id: index,
+          rowNumber: index + 1,
           username: user.username,
           email: user.email,
         })));
@@ -161,80 +189,87 @@ function Notificaciones() {
   }, []);
 
   return (
-        <div style={{ backgroundColor: 'white',
-    height: '100vh',
-    width: '100%',
- }}>
-    <div>
-      {/* Muestra los alertas según el estado */}
-      {successAlert && (
-        <Alert severity="success" onClose={() => setSuccessAlert(false)}>
-          <AlertTitle>Success</AlertTitle>
-          Correo enviado exitosamente
-        </Alert>
-      )}
-      {errorAlert && (
-        <Alert severity="error" onClose={() => setErrorAlert(false)}>
-          <AlertTitle>Error</AlertTitle>
-          Ocurrió un error al enviar el correo
-        </Alert>
-      )}
-      {subjectError && (
-        <Alert severity="error" onClose={() => setSubjectError(false)}>
-          <AlertTitle>Error</AlertTitle>
-          El asunto del correo es obligatorio
-        </Alert>
-      )}
-      {contentError && (
-        <Alert severity="error" onClose={() => setContentError(false)}>
-          <AlertTitle>Error</AlertTitle>
-          El contenido del correo es obligatorio
-        </Alert>
-      )}
-      <DataGrid
-      autoHeight
-      rows={rows}
-      columns={columns}
-      slotProps={{
-        cell: { style: { borderRight: '1px solid #ddd' } },
-        columnHeader: { style: { borderRight: '1px solid #ddd' } },
-        }}
+    <div style={{ backgroundColor: 'white', height: '90%', width: '100%' }}>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '10px' }}>
+        <Button
+          startIcon={<MarkAsUnreadIcon />}
+          variant="contained"
+          color="primary"
+          onClick={handleClickOpenAll}
+        >
+          Enviar Correo A Todos
+        </Button>
+      </div>
+      <div>
+        {/* Muestra los alertas según el estado */}
+        {successAlert && (
+          <Alert severity="success" onClose={() => setSuccessAlert(false)}>
+            <AlertTitle>Success</AlertTitle>
+            Correo enviado exitosamente
+          </Alert>
+        )}
+        {errorAlert && (
+          <Alert severity="error" onClose={() => setErrorAlert(false)}>
+            <AlertTitle>Error</AlertTitle>
+            Ocurrió un error al enviar el correo
+          </Alert>
+        )}
+        {subjectError && (
+          <Alert severity="error" onClose={() => setSubjectError(false)}>
+            <AlertTitle>Error</AlertTitle>
+            El asunto del correo es obligatorio
+          </Alert>
+        )}
+        {contentError && (
+          <Alert severity="error" onClose={() => setContentError(false)}>
+            <AlertTitle>Error</AlertTitle>
+            El contenido del correo es obligatorio
+          </Alert>
+        )}
+        <DataGrid
+          autoHeight
+          rows={rows}
+          columns={columns}
+          slotProps={{
+            cell: { style: { borderRight: '1px solid #ddd' } },
+            columnHeader: { style: { borderRight: '1px solid #ddd' } },
+          }}
         />
-      <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>Enviar correo a {username}</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            Escribe el asunto del correo electrónico:
-          </DialogContentText>
-          <TextareaAutosizeStyled
-            autoFocus
-            margin="dense"
-            aria-label="Asunto del correo"
-            placeholder="Asunto del correo"
-            fullWidth
-            value={emailSubject}
-            onChange={(event) => setEmailSubject(event.target.value)}
-          />
-          <DialogContentText style={{ marginTop: '20px' }}>
-            Escribe el contenido del correo electrónico:
-          </DialogContentText>
-          <div style={{ minHeight: '200px' }}>
+        <Dialog open={open} onClose={handleClose}>
+          <DialogTitle>Enviar correo a {sendToAll ? 'todos los usuarios' : username}</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              Escribe el asunto del correo electrónico:
+            </DialogContentText>
             <TextareaAutosizeStyled
+              autoFocus
               margin="dense"
-              aria-label="Contenido del correo"
-              placeholder="Contenido del correo"
-              fullWidth
-              value={emailContent}
-              onChange={(event) => setEmailContent(event.target.value)}
+              aria-label="Asunto del correo"
+              placeholder="Asunto del correo"
+              width="100%"
+              value={emailSubject}
+              onChange={(event) => setEmailSubject(event.target.value)}
             />
-          </div>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose}>Cancelar</Button>
-          <Button onClick={() => handleSend(emailContent, emailSubject, userEmail)}>Enviar</Button>
-        </DialogActions>
-      </Dialog>
-    </div>
+            <DialogContentText style={{ marginTop: '20px' }}>
+              Escribe el contenido del correo electrónico:
+            </DialogContentText>
+            <div style={{ minHeight: '200px' }}>
+              <TextareaAutosizeStyled
+                margin="dense"
+                aria-label="Contenido del correo"
+                placeholder="Contenido del correo"
+                width="100%"
+                value={emailContent}
+                onChange={(event) => setEmailContent(event.target.value)}
+              />
+            </div>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleClose}>Cancelar</Button>
+            <Button onClick={() => handleSend(emailContent, emailSubject, userEmail)}>Enviar</Button>
+          </DialogActions>
+        </Dialog>
+      </div>
     </div>
   );
 }

@@ -27,12 +27,13 @@ const manualEmail = (req, res) => {
         <html>
         <body>
             <header>
-                <h1>${emailSubject}</h1>
+                <h3>${emailSubject}</h3>
             </header>
             <main>
                 <p>Estimad@ Cliente,</p>
                 <p>${emailContent}</p>
-                <p>Para realizar el pago, visita nuestro <a href="https://intranet.ubiobio.cl">sitio web</a> o acude presencialemente a la municipalidad.</p>
+                <p></p>
+                <p>Para ver o realizar un pago, ver tus deudas o realizar apelaciones, visita nuestro <a href="http://146.83.198.35:1633/auth">Sitio web</a> o acude presencialemente a la municipalidad.</p>
                 <img src="https://i.imgur.com/dUmvZnw.png" alt="Ejemplo de imagen" width="333" height="128">
             </main>
         </body>
