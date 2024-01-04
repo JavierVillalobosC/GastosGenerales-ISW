@@ -47,6 +47,12 @@ exports.getDeudasReportForUserPDF = async (req, res) => {
             return res.status(400).json({ error });
         }
 
+        // Verificar que report y report.deudas existen y que report.deudas es un array
+        if (!report || !report.deudas || !Array.isArray(report.deudas)) {
+            console.error('report or report.deudas is not an array:', report);
+            return res.status(500).json({ error: 'Se ha producido un error al generar el PDF.' });
+        }
+
         // Definición del documento
         const docDefinition = {
             content: [
