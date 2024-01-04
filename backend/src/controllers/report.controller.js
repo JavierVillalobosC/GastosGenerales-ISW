@@ -54,71 +54,68 @@ exports.getDeudasReportForUserPDF = async (req, res) => {
             return res.status(500).json({ error: 'Se ha producido un error al generar el PDF.' });
         }
 
+        // Crear un array para almacenar el contenido del PDF
+        let pdfContent = [];
+
+        // Iterar sobre report.deudas con un bucle for
+        for (let i = 0; i < report.deudas.length; i++) {
+            let deuda = report.deudas[i];
+
+            // Si la deuda es null o undefined, o no tiene las propiedades esperadas, continuar con la siguiente iteración
+            if (!deuda || !deuda.user || !deuda.serviceId || !deuda.initialDate || !deuda.finalDate || !deuda.actualamount || !deuda.numberOfPayments || !deuda.state) {
+                continue;
+            }
+
+            // Registrar el objeto deuda
+            console.log(`Deuda ${i}:`, deuda);
+
+            // Buscar el nombre del servicio y estado por su ID
+            const servicio = await Categoria.findOne({ name: deuda.serviceId });
+            console.log('Servicio:', servicio); // Agregado para depurar el servicio obtenido
+            const estado = await DebtStates.findOne({ name: deuda.state });
+            console.log('Estado:', estado); // Agregado para depurar el estado obtenido
+
+            // Agregar el contenido al array pdfContent
+            pdfContent.push(
+                { text: `Usuario: ${deuda.user}` },
+                { text: `Servicio: ${servicio ? servicio.name : 'No encontrado'}` },
+                { text: `Fecha inicial: ${new Date(deuda.initialDate).toLocaleDateString()}` },
+                { text: `Fecha final: ${new Date(deuda.finalDate).toLocaleDateString()}` },
+                { text: `Monto actual: ${deuda.actualamount.toLocaleString('es-Cl', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` },
+                { text: `Número de pagos: ${deuda.numberOfPayments}` },
+                { text: `Estado: ${estado ? estado.name : 'No encontrado'}` },
+                '\n'
+            );
+        }
+
         // Definición del documento
         const docDefinition = {
             content: [
                 { text: 'Informe de Deudas', style: 'header' },
-                ...await Promise.all(report.deudas.map(async (deuda, index) => {
-                    // Si la deuda es null o undefined, o no tiene las propiedades esperadas, devolver un array vacío
-                    if (!deuda || !deuda.user || !deuda.serviceId || !deuda.initialDate || !deuda.finalDate || !deuda.actualamount || !deuda.numberOfPayments || !deuda.state) {
-                        return [];
-                    }
-
-                    // Registrar el objeto deuda
-                    console.log(`Deuda ${index}:`, deuda);
-
-                    // Buscar el nombre del servicio y estado por su ID
-                    const servicio = await Categoria.findOne({ name: deuda.serviceId });
-                    console.log('Servicio:', servicio); // Agregado para depurar el servicio obtenido
-                    const estado = await DebtStates.findOne({ name: deuda.state });
-                    console.log('Estado:', estado); // Agregado para depurar el estado obtenido
-
-                    return [
-                        { text: `Usuario: ${deuda.user}` },
-                        { text: `Servicio: ${servicio ? servicio.name : 'No encontrado'}` },
-                        { text: `Fecha inicial: ${new Date(deuda.initialDate).toLocaleDateString()}` },
-                        { text: `Fecha final: ${new Date(deuda.finalDate).toLocaleDateString()}` },
-                        { text: `Monto actual: ${deuda.actualamount.toLocaleString('es-Cl', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` },
-                        { text: `Número de pagos: ${deuda.numberOfPayments}` },
-                        { text: `Estado: ${estado ? estado.name : 'No encontrado'}` },
-                        '\n'
-                    ];
-                })),
-                { 
-                    text: [
-                      { text: 'Total de Deudas: ', bold: true, fontSize: 14 },
-                      { text: `${report.resumen.totalAmount.toLocaleString('es-CL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, fontSize: 12 }
-                    ]
-                  },
-                  { 
-                    text: [
-                      { text: 'Promedio de Deudas: ', bold: true, fontSize: 14 },
-                      { text: `${report.resumen.averageAmount.toLocaleString('es-CL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, fontSize: 12 }
-                    ]
-                  },
-                  { 
-                    text: [
-                      { text: 'Total de Pagos: ', bold: true, fontSize: 14 },
-                      { text: `${report.resumen.totalNumberOfPayments}`, fontSize: 12 }
-                    ]
-                  },
-                  { 
-                    text: [
-                      { text: 'Promedio de Pagos: ', bold: true, fontSize: 14 },
-                      { text: `${report.resumen.averageNumberOfPayments}`, fontSize: 12 }
-                    ]
-                  }
+                ...pdfContent,
+                
             ],
             styles: {
                 header: {
                     fontSize: 18,
                     bold: true,
                     margin: [0, 0, 0, 10]
-                }
+                },
+            
             },
-            footer: function(currentPage, pageCount) { return currentPage.toString() + ' de ' + pageCount; },
+            header: function(currentPage, pageCount, pageSize) {
+                return {
+                    text: 'Informe de deudas',
+                    alignment: 'right',
+                    margin: [0, 0, 10, 0]
+                };
+            },
+            footer: function(currentPage, pageCount) {
+                
+                return currentPage.toString() + ' de ' + pageCount;
+            },
+            // Aquí puedes agregar más opciones de configuración si las necesitas
         };
-
         // Crear un PDF con pdfmake
         const pdfDoc = pdfmake.createPdf(docDefinition);
         pdfDoc.getBuffer((buffer) => {

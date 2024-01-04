@@ -13,10 +13,13 @@ const paytype = require("../models/paytypes.model.js");
  */
 async function getDeudasReportForUser(userId) {
     try {
-        const deudas = await Debt.find({ user: userId })
-        console.log(deudas)
-        .populate("user")
-        .exec();
+        const deudasQuery = Debt.find({ user: userId });
+
+        if (!deudasQuery) {
+            throw new Error('La consulta a la base de datos falló');
+        }
+
+        const deudas = await deudasQuery.populate("user").exec();
 
         if (!deudas || deudas.length === 0) return [null, "No hay deudas para este usuario"];
 
