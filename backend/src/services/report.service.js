@@ -14,6 +14,7 @@ const paytype = require("../models/paytypes.model.js");
 async function getDeudasReportForUser(userId) {
     try {
         const deudas = await Debt.find({ user: userId })
+        console.log(deudas)
         .populate("user")
         .exec();
 
@@ -43,6 +44,8 @@ async function getDeudasReportForUser(userId) {
             // Buscar el nombre del servicio y estado por su ID
             const servicio = await Categoria.findById(deuda.idService);
             const estado = await DebtStates.findById(deuda.estado);
+            console.log(servicio)
+            console.log(estado)
 
             // Devolver la deuda adaptada
             return {

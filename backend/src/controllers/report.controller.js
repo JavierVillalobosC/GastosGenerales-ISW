@@ -43,6 +43,7 @@ exports.getPagosReportForUser = async (req, res) => {
 exports.getDeudasReportForUserPDF = async (req, res) => {
     try {
         const [report, error] = await reportService.getDeudasReportForUser(req.params.userId);
+        console.log('Report:', report); // Agregado para depurar el reporte obtenido
         if (error) {
             return res.status(400).json({ error });
         }
@@ -68,7 +69,9 @@ exports.getDeudasReportForUserPDF = async (req, res) => {
 
                     // Buscar el nombre del servicio y estado por su ID
                     const servicio = await Categoria.findOne({ name: deuda.serviceId });
+                    console.log('Servicio:', servicio); // Agregado para depurar el servicio obtenido
                     const estado = await DebtStates.findOne({ name: deuda.state });
+                    console.log('Estado:', estado); // Agregado para depurar el estado obtenido
 
                     return [
                         { text: `Usuario: ${deuda.user}` },
