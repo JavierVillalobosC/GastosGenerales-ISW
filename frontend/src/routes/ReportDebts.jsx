@@ -23,44 +23,44 @@ function Report() {
       }
 
       // Obtener los servicios y los estados de la deuda desde el servidor
-      axios.get('/categorias', {
-        headers: {
-          Authorization: `Bearer ${user.token}`
-        }
-      }).then((response) => {
-        const services = {};
-        if (Array.isArray(response.data.data)) {
-          response.data.data.forEach(service => {
-            services[service.id] = service.name;
-          });
-        } else {
-          console.error('response.data.data is not an array:', response.data.data);
-        }
-        setServices(services);
-      });
-      
-      axios.get('/debstates', {
-        headers: {
-          Authorization: `Bearer ${user.token}`
-        }
-      }).then((response) => {
-        const states = {};
-        if (Array.isArray(response.data.data)) {
-          response.data.data.forEach(state => {
-            states[state.id] = state.name;
-          });
-        } else {
-          console.error('response.data.data is not an array:', response.data.data);
-        }
-        setStates(states);
-      });
-    
-      axios.get(`/report/deudas/${user.id}`, {
+      Promise.all([
+        axios.get('/categorias', {
+          headers: {
+            Authorization: `Bearer ${user.token}`
+          }
+        }),
+        axios.get('/debstates', {
           headers: {
             Authorization: `Bearer ${user.token}`
           }
         })
-      .then((response) => {
+      ]).then(([categoriasResponse, debstatesResponse]) => {
+        const services = {};
+        if (Array.isArray(categoriasResponse.data.data)) {
+          categoriasResponse.data.data.forEach(service => {
+            services[service.id] = service.name;
+          });
+        } else {
+          console.error('categoriasResponse.data.data is not an array:', categoriasResponse.data.data);
+        }
+        setServices(services);
+      
+        const states = {};
+        if (Array.isArray(debstatesResponse.data.data)) {
+          debstatesResponse.data.data.forEach(state => {
+            states[state.id] = state.name;
+          });
+        } else {
+          console.error('debstatesResponse.data.data is not an array:', debstatesResponse.data.data);
+        }
+        setStates(states);
+      
+        return axios.get(`/report/deudas/${user.id}`, {
+          headers: {
+            Authorization: `Bearer ${user.token}`
+          }
+        });
+      }).then((response) => {
         const { deudas, resumen } = response.data;
         setResumen(resumen);
         setRows(deudas.map((debt, index) => ({
@@ -73,8 +73,7 @@ function Report() {
           numberOfPayments: debt.numberOfPayments,
           state: states[debt.state] || debt.state,
         })));
-      })
-      .catch((error) => {
+      }).catch((error) => {
         console.error('Hubo un error al obtener los datos de las deudas: ', error);
       });
     }, [user]);

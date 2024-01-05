@@ -44,11 +44,17 @@ async function getDeudasReportForUser(userId) {
                 return {};
             }
 
+            console.log('idService:', deuda.idService);
+            console.log('estado:', deuda.estado);
+
             // Buscar el nombre del servicio y estado por su ID
             const servicio = await Categoria.findById(deuda.idService);
             const estado = await DebtStates.findById(deuda.estado);
-            console.log(servicio)
-            console.log(estado)
+
+            // console.log(servicio);
+            // console.log(estado);
+            console.log('servicio:', servicio);
+            console.log('estado:', estado);
 
             // Devolver la deuda adaptada
             return {
