@@ -4,6 +4,7 @@ import axios from '../services/root.service';
 import IconButton from '@mui/material/IconButton';
 import EditIcon from '@mui/icons-material/Edit';
 import { AuthProvider, useAuth } from '../context/AuthContext';
+import { PieChart, pieArcLabelClasses } from '@mui/x-charts/PieChart';
 
 function Root() {
   return (
@@ -29,7 +30,9 @@ function Root() {
     const { user } = useAuth();
   console.log(user);
     const [rows, setRows] = React.useState([]);
-    
+    const [chartData, setChartData] = React.useState([]);
+    const [userChartData, setUserChartData] = React.useState([]);
+
     React.useEffect(() => {
       axios.get(`/users/email/${user.email}`)
         .then((response) => {
@@ -72,7 +75,36 @@ function Root() {
                   });
   
                   setRows(newRows);
+                  const statusNameMap = statusData.reduce((map, status) => {
+                    map[status.data.data._id] = status.data.data.name;
+                    return map;
+                  }, {});
+                  const paymentStatusCounts = currentUserPayments.reduce((counts, payment) => {
+                    const statusName = statusNameMap[payment.status];
+                    if (!counts[statusName]) {
+                      counts[statusName] = 0;
+                    }
+                    counts[statusName]++;
+                    return counts;
+                  }, {});
+  
+                  const data = Object.entries(paymentStatusCounts).map(([label, value]) => ({ label, value }));
+  
+                  setChartData(data);
+
+                  const userPaymentCounts = currentUserPayments.reduce((counts, payment) => {
+                    const username = payment.user.username;
+                    if (!counts[username]) {
+                      counts[username] = 0;
+                    }
+                    counts[username]++;
+                    return counts;
+                  }, {});
+                  const userData = Object.entries(userPaymentCounts).map(([label, value]) => ({ label, value }));
+                  setUserChartData(userData);
                 });
+
+
             })
             .catch((error) => {
               console.error('Hubo un error al obtener los datos de los pagos: ', error);
@@ -83,19 +115,69 @@ function Root() {
         });
     }, [user]);
   
+    const size = {
+      width: 400,
+      height: 200,
+    };
     return (
-      <div style={{ backgroundColor: 'white', 
-      height: '100vh', 
-      width: '100%', 
-      display: 'flex', 
-      justifyContent: 'center', 
-      alignItems: 'center'  }}>
-        <DataGrid
-          rows={rows}
-          columns={columns}
-          pageSize={5}
-          rowsPerPageOptions={[5, 10]}
-        />
+      <div style={{ 
+        backgroundColor: 'white', 
+        height: '100vh', 
+        width: '100%', 
+        display: 'flex', 
+        flexDirection: 'column', 
+        justifyContent: 'center', 
+        alignItems: 'center'  
+      }}>
+        <div style={{ marginBottom: '100px', width: '80%', height: '50%' }}>
+        <h2>Pagos Registrados</h2>
+        
+          <DataGrid
+            rows={rows}
+            columns={columns}
+            pageSize={5}
+            rowsPerPageOptions={[5, 10]}
+          />
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'space-around' }}>
+          <div>
+          <h3>Estado de pagos</h3>
+          <PieChart
+            series={[
+              {
+                arcLabel: (item) => `${item.label} (${item.value})`,
+                arcLabelMinAngle: 45,
+                data: chartData,
+              },
+            ]}
+            sx={{
+              [`& .${pieArcLabelClasses.root}`]: {
+                fill: 'white',
+                fontWeight: 'bold',
+              },
+            }}
+            {...size}
+          /></div>
+          <div>
+          <h3>Pagos por usuario</h3>
+          <PieChart
+        series={[
+          {
+            arcLabel: (item) => `${item.label} (${item.value})`,
+            arcLabelMinAngle: 45,
+            data: userChartData,
+          },
+        ]}
+        sx={{
+          [`& .${pieArcLabelClasses.root}`]: {
+            fill: 'white',
+            fontWeight: 'bold',
+          },
+        }}
+        {...size}
+      /></div>
+        </div>
       </div>
     );
   }
