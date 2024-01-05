@@ -12,6 +12,8 @@ import Button from '@mui/material/Button';
 function Report() {
     const [rows, setRows] = React.useState([]);
     const [resumen, setResumen] = React.useState(null);
+    const [services, setServices] = React.useState({});
+    const [states, setStates] = React.useState({});
     const { user } = useAuth();
   
     React.useEffect(() => {
@@ -19,6 +21,39 @@ function Report() {
         console.error('User or user ID is undefined');
         return;
       }
+
+      // Obtener los servicios y los estados de la deuda desde el servidor
+      axios.get('/categorias', {
+        headers: {
+          Authorization: `Bearer ${user.token}`
+        }
+      }).then((response) => {
+        const services = {};
+        if (Array.isArray(response.data.data)) {
+          response.data.data.forEach(service => {
+            services[service.id] = service.name;
+          });
+        } else {
+          console.error('response.data.data is not an array:', response.data.data);
+        }
+        setServices(services);
+      });
+      
+      axios.get('/debstates', {
+        headers: {
+          Authorization: `Bearer ${user.token}`
+        }
+      }).then((response) => {
+        const states = {};
+        if (Array.isArray(response.data.data)) {
+          response.data.data.forEach(state => {
+            states[state.id] = state.name;
+          });
+        } else {
+          console.error('response.data.data is not an array:', response.data.data);
+        }
+        setStates(states);
+      });
     
       axios.get(`/report/deudas/${user.id}`, {
           headers: {
@@ -29,14 +64,14 @@ function Report() {
         const { deudas, resumen } = response.data;
         setResumen(resumen);
         setRows(deudas.map((debt, index) => ({
-          id: debt.id || index, // Usa el ID de la deuda como ID de la fila, si no existe usa el índice
+          id: debt.id || index,
           user: debt.user,
-          serviceId: debt.serviceId,
+          serviceId: services[debt.serviceId] || debt.serviceId,
           initialDate: new Date(debt.initialDate).toLocaleDateString('es-CL'),
           finalDate: new Date(debt.finalDate).toLocaleDateString('es-CL'),
           actualamount: debt.actualamount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
           numberOfPayments: debt.numberOfPayments,
-          state: debt.state,
+          state: states[debt.state] || debt.state,
         })));
       })
       .catch((error) => {
@@ -47,7 +82,7 @@ function Report() {
     const columns = [
         { field: 'id', headerName: 'ID', width: 70 },
         { field: 'user', headerName: 'Usuario', width: 130 },
-        { field: 'serviceId', headerName: 'ID de Servicio', width: 160 },
+        { field: 'serviceId', headerName: 'Servicio', width: 160 },
         { field: 'initialDate', headerName: 'Fecha Inicial', flex: 1},
         { field: 'finalDate', headerName: 'Fecha Final', flex: 1},
         { field: 'actualamount', headerName: 'Monto Actual', flex: 1},
