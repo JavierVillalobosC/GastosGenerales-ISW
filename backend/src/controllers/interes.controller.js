@@ -7,6 +7,7 @@ const { handleError } = require("../utils/errorHandler");
 const User = require("../models/user.model.js");
 const DEBTSTATES = require('../constants/debtstates.constants.js');
 const { crearInteres } = require("../services/interes.service.js");
+const { addInteresbyId } = require("../services/interes.service.js");
 
 async function aplicarInteres(req, res) {
     try {
@@ -20,45 +21,27 @@ async function aplicarInteres(req, res) {
     }
 }
 
-/**
- * Aplica un porcentaje de interés a una deuda vencida.
- */
-/* async function aplicarInteres(req, res) {
-    try {
-        const { deudaId, tipoPago } = req.body;
+    async function addInteresController(req, res) {
+        try {
+            const { id } = req.params;
 
-        // Busca la deuda por ID
-        const deuda = await Debt.findById(deudaId);
+            const result = await addInteresbyId(id);
 
-        if (!deuda) {
-            return res.status(404).json({ error: "La deuda no existe" });
+        if (!result) {
+            throw new Error('No se pudo agregar el interés');
         }
-
-        // Verifica si la deuda está vencida
-        const currentDate = new Date();
-        if (currentDate > deuda.finaldate) {
-            // Calcula el interés según el tipo de pago
-            let interes = 0;
-            if (tipoPago === "total") {
-                interes = 0.01; // Ejemplo: 1% de interés
-            } else if (tipoPago === "parcial") {
-                interes = 0.02; // Ejemplo: 2% de interés   
-            }
-
-            // Aplica el interés
-            const nuevoMonto = deuda.amount * (1 + interes);
-            deuda.amount = nuevoMonto;
-            deuda.taxes = interes;
-
-            // Guarda la deuda actualizada
-            await deuda.save();
+    
+            // Envía una respuesta al cliente
+            res.json({ message: 'Interés agregado correctamente',
+            valorAnterior: result.valorAnterior,
+            valorInteres: result.valorInteres,
+            valorFinal: result.valorFinal });
+        } catch (error) {
+            console.error(`Error al agregar interés: ${error}`);
+            res.status(500).json({ message: 'Hubo un error al agregar el interés' });
         }
-
-        return respondSuccess(req, res, 200, deuda);
-    } catch (error) {
-        return handleError(res, error);
     }
-} */
+
 
 async function obtenerUsuariosEnListaNegra(req, res) {
     try {
@@ -124,5 +107,6 @@ module.exports = {
     aplicarInteres,
     obtenerUsuariosEnListaNegra,
     actualizarUsuariosBlacklisted,
-    listarDeudasConIntereses
+    listarDeudasConIntereses,
+    addInteresController
 };

@@ -298,6 +298,12 @@ async function updateAllUserStates() {
 }
 
 async function addToBlacklist(user) {
+  // Verifica si el objeto 'user' está definido
+  if (!user) {
+    console.error('addToBlacklist fue llamado con un usuario indefinido');
+    return;
+  }
+
   // Verifica si el usuario ya está en la lista negra
   if (user.blacklisted) {
     // Si el usuario ya está en la lista negra, retorna sin hacer nada
@@ -319,7 +325,7 @@ async function añadirListaNegra() {
   // Itera sobre todos los usuarios
   for (const user of users) {
     // Obtiene todas las deudas del usuario
-    const debts = await Debt.find({ user: user._id });
+    const debts = await Debt.find({ user: user.id });
 
     // Itera sobre todas las deudas del usuario
     for (const debt of debts) {

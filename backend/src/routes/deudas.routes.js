@@ -19,6 +19,7 @@ router.put('/removeFromBlacklist', deudaController.removeFromBlacklist);
 router.put("/:id", authorizationMiddleware.isAdmin, deudaController.updateDeuda);
 router.delete("/:id", authorizationMiddleware.isAdmin, deudaController.deleteDeuda);
 router.get("/user/:id", deudaController.getDeudasByUserId);
+router.put("/reset", authorizationMiddleware.isAdmin, deudaController.resetDebtAmountsController);
 
 router.get('/deudas-con-intereses', async (req, res) => {
     const [deudas, error] = await getDeudasinterest();

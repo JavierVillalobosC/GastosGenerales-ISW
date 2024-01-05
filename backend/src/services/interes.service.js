@@ -28,74 +28,93 @@ async function getIntereses() {
 
 async function crearInteres() {
     try {
-        // Obtén todas las deudas
-        const deudas = await Debt.find().exec();
+        // Obtén todas las deudas a las que no se les ha aplicado interés y cuya fecha de vencimiento ha pasado
+        const deudas = await Debt.find({ interestApplied: false, finaldate: { $lt: new Date() } }).exec();
 
         // Itera sobre cada deuda
         for (let debt of deudas) {
-            // Si la fecha de vencimiento ha pasado
-            if (new Date(debt.finaldate) < new Date()) {
-                // Busca al usuario asociado con la deuda
-                const user = await User.findById(debt.user).exec();
+            // Busca al usuario asociado con la deuda
+            const user = await User.findById(debt.user).exec();
 
-                // Verifica que el usuario exista
-                if (!user) {
-                    console.log(`No se encontró un usuario para la deuda con id ${debt._id}`);
-                    continue; // Salta al siguiente ciclo del bucle
-                }
-
-                // Busca el pago asociado con la deuda
-                const pay = await Pay.findOne({ debt: debt._id }).exec();
-
-                // Verifica que el pago exista
-                /* if (!pay) {
-                    console.log(`No se encontró un pago para la deuda con id ${debt._id}`);
-                    continue; // Salta al siguiente ciclo del bucle
-                } */
-
-                // Determina el porcentaje de interés basado en el tipo de pago
-                let porcentajeInteres;
-                if (!pay) {
-                    porcentajeInteres = 0.15; // 15% para deudas no pagadas
-                } else if (pay.type === 'total') {
-                    porcentajeInteres = 0.05; // 5% para pagos totales
-                } else if (pay.type === 'parcial') {
-                    porcentajeInteres = 0.10; // 10% para pagos parciales
-                } else {
-                    console.log(`Tipo de pago desconocido para la deuda con id ${debt._id}`);
-                    continue; // Salta al siguiente ciclo del bucle
-                }
-
-                // Calcula el interés basado en la deuda del usuario
-                const interes = user.debt * porcentajeInteres;
-
-                // Calcula el valor final de la deuda con el interés agregado
-                const valorFinal = user.debt + interes;
-
-                // Muestra un mensaje en la consola
-                console.log(`> Se aplicó un interés del ${porcentajeInteres * 100}% a la deuda con ID ${debt._id}.\nEl interés es de ${interes}. \nEl valor final de la deuda con el interés agregado es ${valorFinal}.`);
-
-                // Crea un nuevo interés
-                const newInterest = new Interest({
-                    interesID: new mongoose.Types.ObjectId().toString(),
-                    debt: debt._id,
-                    amount: interes
-                });
-
-                // Guarda el nuevo interés en la base de datos
-                await newInterest.save();
-                // Actualiza el valor 'amount' de la deuda con el nuevo valor de la deuda más el interés
-                await Debt.updateOne({ _id: debt._id }, { amount: valorFinal, interestApplied: true });
-
-                // Suma el valor 'amount' de la deuda al valor 'debt' del usuario
-                user.debt += valorFinal;
-
-                // Guarda el usuario actualizado en la base de datos
-                await user.save();
+            // Verifica que el usuario exista
+            if (!user) {
+                console.log(`No se encontró un usuario para la deuda con id ${debt._id}`);
+                continue; // Salta al siguiente ciclo del bucle
             }
+
+            // Establece un porcentaje de interés fijo
+            const porcentajeInteres = 0.10; // 10% para todas las deudas
+
+            // Calcula el interés basado en la deuda del usuario
+            const interes = debt.amount * porcentajeInteres;
+
+            // Calcula el valor final de la deuda con el interés agregado
+            const valorFinal = debt.amount + interes;
+
+            // Muestra un mensaje en la consola
+            console.log(`> Se aplicó un interés del ${porcentajeInteres * 100}% a la deuda con ID ${debt._id}.\nEl interés es de ${interes}. \nEl valor final de la deuda con el interés agregado es ${valorFinal}.`);
+
+            // Crea un nuevo interés
+            const newInterest = new Interest({
+                interesID: new mongoose.Types.ObjectId().toString(),
+                debt: debt._id,
+                amount: interes
+            });
+
+            // Guarda el nuevo interés en la base de datos
+            await newInterest.save();
+
+            // Actualiza el valor 'amount' de la deuda con el nuevo valor de la deuda más el interés y establece 'interestApplied' en true
+            await Debt.updateOne({ _id: debt._id }, { amount: valorFinal, interestApplied: true });
         }
     } catch (error) {
         handleError(error, "intereses.service -> crearInteres");
+    }
+}
+
+async function addInteresbyId(id) {
+
+    const porcentajeInteres = 0.05;
+    try {
+        // Encuentra la deuda específica
+        const debt = await Debt.findOne({ id: id }).exec();
+
+        // Verifica que la deuda exista
+        if (!debt) {
+            console.log(`No se encontró la deuda con id ${id}`);
+            return;
+        }
+
+        // Calcula el interés basado en la deuda
+        const interes = debt.amount * porcentajeInteres;
+
+        // Calcula el valor final de la deuda con el interés agregado
+        const valorFinal = debt.amount + interes;
+
+        // Muestra un mensaje en la consola
+        console.log(`> Se aplicó un interés del ${porcentajeInteres * 100}% a la deuda con ID ${debt._id}.\nEl interés es de ${interes}. \nEl valor final de la deuda con el interés agregado es ${valorFinal}.`);
+
+        /* // Crea un nuevo interés
+        const newInterest = new Interest({
+            interesID: new mongoose.Types.ObjectId().toString(),
+            debt: debt.id,
+            amount: interes
+        }); */
+
+        /* // Guarda el nuevo interés en la base de datos
+        await newInterest.save(); */
+
+        // Actualiza el valor de la deuda en la base de datos
+        await Debt.updateOne({ id: id }, { amount: valorFinal });
+
+        // Devuelve los valores que necesitas
+        return {
+            valorAnterior: debt.amount,
+            valorInteres: interes,
+            valorFinal: valorFinal
+        };
+    } catch (error) {
+        handleError(error, "intereses.service -> addInteresById");
     }
 }
 
@@ -120,5 +139,6 @@ async function listarDeudasConIntereses(userId) {
 module.exports = {
     getIntereses,
     crearInteres,
-    listarDeudasConIntereses
+    listarDeudasConIntereses,
+    addInteresbyId
 };

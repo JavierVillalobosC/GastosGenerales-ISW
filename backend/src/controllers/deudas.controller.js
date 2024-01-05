@@ -13,6 +13,17 @@ const DEBTSTATES = require("../constants/debtstates.constants.js");
  * @returns {Promise} Promesa con el objeto de las deudas
  */
 
+async function resetDebtAmountsController(req, res) {
+  try {
+    await resetDebtAmounts();
+
+    respondSuccess(req, res, 200, { message: 'Los montos de las deudas han sido restablecidos exitosamente.' });
+  } catch (error) {
+    handleError(error, "deudas.controller -> resetDebtAmountsController");
+    respondError(req, res, 400, error.message);
+  }
+}
+
 async function getDeudas(req, res) {
   try {
     const [deudas, errorDeudas] = await DebtService.getDeudas();
@@ -146,4 +157,5 @@ module.exports = {
   deleteDeuda,
   removeFromBlacklist,
   getDeudasByUserId,
+  resetDebtAmountsController
 };

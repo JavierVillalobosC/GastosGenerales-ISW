@@ -18,6 +18,7 @@ import AddIcon from '@mui/icons-material/Add';
 import { useForm } from 'react-hook-form';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import DeleteIcon from '@mui/icons-material/Delete';
+import PaidIcon from '@mui/icons-material/Paid';
 import { useAuth } from '../context/AuthContext';
 
 /* function Root() {
@@ -70,8 +71,8 @@ function Deudas() {
         setIsPayFormOpen(true);
     };
 
-    const handleDeleteDebt = (id) => {
-        axios.put(`/deudas/${editingRow.id}`, updatedRow)
+    const handleDeleteDebt = (_id) => {
+        axios.delete(`/deudas/${_id}`)
         .then((response) => {
             console.log(response); // Imprime la respuesta de la API
 
@@ -140,6 +141,22 @@ function Deudas() {
           // El usuario hizo clic en "Cancelar", así que no hagas nada.
         }
       };
+
+      const handleAddInterestById = (id) => {
+        if (window.confirm('¿Estás seguro de que quieres añadir interés por ID?')) {
+            axios.post(`/interes/addInteres/${id}`)
+                .then((response) => {
+                    console.log(response);
+                    alert('Interés añadido con éxito');
+                    // Aquí puedes actualizar tus datos de deudas (rows) si es necesario
+                // Suponiendo que 'rows' es el estado de tus datos de deudas y 'setRows' es la función para actualizar ese estado
+                setRows(rows.map(row => row.id === id ? response.data : row));
+                })
+                .catch((error) => {
+                    console.error('Hubo un error al agregar intereses: ', error);
+                });
+        }
+    };
 
     const handleUpdate = () => {
 
@@ -210,6 +227,20 @@ if (user.roles[0].name === 'admin') {
                     onClick={() => handleDeleteDebt(params.row.id)}
                 >
                     <DeleteIcon />
+                </IconButton>
+            ),
+        },
+        {
+            field: 'interes',
+            headerName: 'Agregar Interes por ID',
+            align: 'center',
+            width: 150,
+            renderCell: (params) => (
+                <IconButton
+                    color="primary"
+                    onClick={() => handleAddInterestById(params.row.id)}
+                >
+                    <PaidIcon />
                 </IconButton>
             ),
         }
