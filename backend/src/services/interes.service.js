@@ -66,6 +66,16 @@ async function crearInteres() {
 
             // Actualiza el valor 'amount' de la deuda con el nuevo valor de la deuda más el interés y establece 'interestApplied' en true
             await Debt.updateOne({ _id: debt._id }, { amount: valorFinal, interestApplied: true });
+
+            /* // Obtén todas las deudas del usuario
+            const userDebts = await Debt.find({ user: user._id }).exec();
+
+            // Suma todas las deudas del usuario
+            const totalDebt = userDebts.reduce((total, debt) => total + debt.amount, 0);
+
+            // Actualiza la deuda del usuario
+            user.debt = totalDebt;
+            await user.save(); */
         }
     } catch (error) {
         handleError(error, "intereses.service -> crearInteres");
@@ -94,24 +104,34 @@ async function addInteresbyId(id) {
         // Muestra un mensaje en la consola
         console.log(`> Se aplicó un interés del ${porcentajeInteres * 100}% a la deuda con ID ${debt._id}.\nEl interés es de ${interes}. \nEl valor final de la deuda con el interés agregado es ${valorFinal}.`);
 
-        /* // Crea un nuevo interés
-        const newInterest = new Interest({
-            interesID: new mongoose.Types.ObjectId().toString(),
-            debt: debt.id,
-            amount: interes
-        }); */
-
-        /* // Guarda el nuevo interés en la base de datos
-        await newInterest.save(); */
-
         // Actualiza el valor de la deuda en la base de datos
         await Debt.updateOne({ id: id }, { amount: valorFinal });
+
+        // Encuentra al usuario asociado con la deuda
+        const user = await User.findById(debt.user).exec();
+
+        // Verifica que el usuario exista
+        if (!user) {
+            console.log(`No se encontró un usuario para la deuda con id ${debt._id}`);
+            return;
+        }
+
+        // Obtén todas las deudas del usuario
+        const userDebts = await Debt.find({ user: user._id }).exec();
+
+        // Suma todas las deudas del usuario
+        const totalDebt = userDebts.reduce((total, debt) => total + debt.amount, 0);
+
+        // Actualiza la deuda del usuario
+        user.debt = totalDebt;
+        await user.save();
 
         // Devuelve los valores que necesitas
         return {
             valorAnterior: debt.amount,
             valorInteres: interes,
-            valorFinal: valorFinal
+            valorFinal: valorFinal,
+            totalDebt: totalDebt
         };
     } catch (error) {
         handleError(error, "intereses.service -> addInteresById");

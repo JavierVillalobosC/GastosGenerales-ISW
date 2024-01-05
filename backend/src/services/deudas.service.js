@@ -67,8 +67,6 @@ async function createDeuda(deuda) {
     const idServiceFound = await Categoria.findOne({ name: service });
     if (!idServiceFound) return [null, "El servicio especificado no existe"];
 
-    // Actualizar la deuda del usuario
-    userFound.debt += amount;
     userFound.estado = debtStatesFound._id;
     await userFound.save();
 
@@ -90,6 +88,16 @@ async function createDeuda(deuda) {
     });
 
     await newDebt.save();
+
+    // Obtén todas las deudas del usuario
+    const userDebts = await Debt.find({ user: userFound._id }).exec();
+
+    // Suma todas las deudas del usuario
+    const totalDebt = userDebts.reduce((total, debt) => total + debt.amount, 0);
+
+    // Actualiza la deuda del usuario
+    userFound.debt = totalDebt;
+    await userFound.save();
 
     // Guarda el usuario actualizado
     const updatedUser = await User.findById(newDebt.user);
@@ -364,7 +372,7 @@ updateAllUserStates();
 setInterval(updateAllUserStates, 600000);
 
 // Programa la función para que se ejecute cada 10 minutos
-setInterval(checkOverdueDebts, 600 * 1000);
+setInterval(checkOverdueDebts, 10 * 1000);
 
 module.exports = {
   getDeudas,
